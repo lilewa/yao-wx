@@ -1,0 +1,7 @@
+<view class="container">
+  <button bindtap='openSocket'>连接</button>
+    <button bindtap='duan'>断开</button>
+    <button bindtap='fa'>发送</button>
+    <button bindtap='fa' bindtap='dang'>{{dang}}</button>
+
+</view>

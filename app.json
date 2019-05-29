@@ -1,0 +1,40 @@
+{
+  "pages": [
+    "pages/startActivity/startActivity",
+    "pages/attend/attend",
+    "pages/listActivity/listActivity"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
+  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+      "color": "#7A7E83",
+      "selectedColor": "#3cc51f",
+      "borderStyle": "black",
+      "backgroundColor": "#ffffff",
+      "list": [
+        {
+          "pagePath": "pages/startActivity/startActivity",
+          "iconPath": "image/icon_component.png",
+          "selectedIconPath": "image/icon_component_HL.png",
+          "text": "活动"
+        },
+        {
+          "pagePath": "pages/attend/attend",
+          "iconPath": "image/icon_API.png",
+          "selectedIconPath": "image/icon_API_HL.png",
+          "text": "参加"
+        },
+        {
+          "pagePath": "pages/listActivity/listActivity",
+          "iconPath": "image/icon_cloud.png",
+          "selectedIconPath": "image/icon_cloud_HL.png",
+          "text": "历史"
+        }
+      ]
+  }
+}
