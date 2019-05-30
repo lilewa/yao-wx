@@ -1,18 +1,10 @@
 //app.js
 App({
   onLaunch: function () {
-    // 展示本地存储能力
-   // var logs = wx.getStorageSync('logs') || []
-    //logs.unshift(Date.now())
-  //  wx.setStorageSync('logs', logs)
-  //  this.openSocket();
-   // // 登录
-    // wx.login({
-    //   success: res => {
-    //     console.log('login',res)
-    //     // 发送 res.code 到后台换取 openId, sessionKey, unionId
-    //   }
-    // })
+ 
+    this.globalData.sessionId = wx.getStorageSync('sessionId') ;
+   // console.log('sessionId:'+this.globalData.sessionId);
+     
     // 获取用户信息
     wx.getSetting({
       success: res => {
@@ -33,6 +25,12 @@ App({
         }
       }
     })
+
+      //  this.openSocket();
+      // 展示本地存储能力
+    // var logs = wx.getStorageSync('sessionId') || []
+    //logs.unshift(Date.now())
+    //  wx.setStorageSync('logs', logs)
   },
   onHide(){
     console.log('close socket')
@@ -43,7 +41,7 @@ App({
     userInfo: null,
     stompClient:null,
     socketConnected:false,
- 
+    sessionId:'',
     subscribe:{
       startLucky:{
         onReceiver:{
@@ -72,11 +70,7 @@ App({
     }
    
   },
-  appSubscribeAll(){
-    for (let page in this.globalData.notify){
-      this.appSubscribe(page);
-    }
-  },
+ 
   wsSubscribe(){
     let that=this;
     for (let method in this.globalData.subscribe){
@@ -126,11 +120,8 @@ App({
         url: 'ws://localhost:8090/messageServer',
         success: () => {
           console.log('stomp connect');
-          stompClient.connect({}, function (callback) {
-            // stompClient.subscribe('/sub/joinAcvtity/10', function (message, headers) {
-            //   console.log("收到joinAcvtity消息：" + message.body);//body中为具体消息内容
-            //   wx.showTabBarRedDot({ index: 2, fail: function () { console.log('fail') } });
-            // });
+          stompClient.connect({},  (callback)=> {
+            this.wsSubscribe();
             console.log('ding');
            });
         }

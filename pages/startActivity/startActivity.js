@@ -7,7 +7,8 @@ Page({
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
-    doingActivity:null
+    doingActivity:null,
+    startLoading:false,
   },
   //事件处理函数
   bindViewTap: function() {
@@ -47,40 +48,34 @@ Page({
     //   })
     // }
     
-    myRequest({
-      url: 'http://localhost:8090/master/attendActivityList',
-      method: 'POST'
-    }).then(res=>{
-      console.log(res.data);
-      if (!res.data.entity)
-        return;
+    // myRequest({
+    //   url: 'http://localhost:8090/master/attendActivityList',
+    //   method: 'POST'
+    // }).then(res=>{
+    //   console.log(res);
+    //   if (!res.data.entity)
+    //     return;
 
-      this.doingActivity = res.data.entity;
-      this.setData({ doingActivity: res.data.entity });
+    //   this.doingActivity = res.data.entity;
+    //   this.setData({ doingActivity: res.data.entity });
 
 
-      if (!app.globalData.subscribe.startLucky[this.doingActivity.id]) {
-        app.globalData.subscribe.startLucky[this.doingActivity.id] = null;
-      }
-      if (!app.globalData.subscribe.closeActivity[this.doingActivity.id]) {
-        app.globalData.subscribe.closeActivity[this.doingActivity.id] = null;
-      }
-      app.globalData.subscribe.joinAcvtity[this.doingActivity.id] = null;
+    //   if (!app.globalData.subscribe.startLucky[this.doingActivity.id]) {
+    //     app.globalData.subscribe.startLucky[this.doingActivity.id] = null;
+    //   }
+    //   if (!app.globalData.subscribe.closeActivity[this.doingActivity.id]) {
+    //     app.globalData.subscribe.closeActivity[this.doingActivity.id] = null;
+    //   }
+    //   app.globalData.subscribe.joinAcvtity[this.doingActivity.id] = null;
 
-      //websocket已经建立，需手动调用订阅
-      console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
-      if (app.globalData.socketConnected) {
+    //   //websocket已经建立，需手动调用订阅
+    //   console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+    //   if (app.globalData.socketConnected) {
 
-        app.wsSubscribe();
-      }
-    })
-    // wx.request({
-    //   url: 'http://localhost:8090/master/doingActivity',
-    //   method: 'POST',
-    //   success: (res) => {
-     
-    //   },
-    // })
+    //     app.wsSubscribe();
+    //   }
+    // }).catch(res=>console.log(res));
+   
 
   },    
   
@@ -98,7 +93,19 @@ Page({
   dang() {
     myRequest({
       url: 'http://localhost:8090/master/attendActivityList',
-      method: 'POST'}).then(res=>{console.log(res)});
-    console.log(1)
+      method: 'POST'}
+      )
+      .then(res=>{console.log(res)});
+  
   },
+  bindStartTap(){
+    
+    if (this.startLoading){
+      return;
+    }
+    console.log('zou');
+    this.startLoading = true;
+    this.setData({ startLoading: true });
+    
+  }
 })
