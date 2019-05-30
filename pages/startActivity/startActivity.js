@@ -1,5 +1,4 @@
-//index.js
-//获取应用实例
+const myRequest=require('../../utils/request')
 const app = getApp()
 
 Page({
@@ -48,36 +47,40 @@ Page({
     //   })
     // }
     
+    myRequest({
+      url: 'http://localhost:8090/master/attendActivityList',
+      method: 'POST'
+    }).then(res=>{
+      console.log(res.data);
+      if (!res.data.entity)
+        return;
 
-    wx.request({
-      url: 'http://localhost:8090/master/doingActivity',
-      method: 'POST',
-      success: (res) => {
-        console.log(res.data);
-        if (!res.data.entity)
-          return;
+      this.doingActivity = res.data.entity;
+      this.setData({ doingActivity: res.data.entity });
 
-        this.doingActivity = res.data.entity;
-        this.setData({ doingActivity: res.data.entity });
 
-   
-        if (!app.globalData.subscribe.startLucky[this.doingActivity.id]) {
-          app.globalData.subscribe.startLucky[this.doingActivity.id] = null;
-        }
-        if (!app.globalData.subscribe.closeActivity[this.doingActivity.id]) {
-          app.globalData.subscribe.closeActivity[this.doingActivity.id] = null;
-        }
-        app.globalData.subscribe.joinAcvtity[this.doingActivity.id] = null;
-        
-        //websocket已经建立，需手动调用订阅
-        console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
-        if (app.globalData.socketConnected) {
-         
-          app.wsSubscribe();
-        }
+      if (!app.globalData.subscribe.startLucky[this.doingActivity.id]) {
+        app.globalData.subscribe.startLucky[this.doingActivity.id] = null;
+      }
+      if (!app.globalData.subscribe.closeActivity[this.doingActivity.id]) {
+        app.globalData.subscribe.closeActivity[this.doingActivity.id] = null;
+      }
+      app.globalData.subscribe.joinAcvtity[this.doingActivity.id] = null;
 
-      },
+      //websocket已经建立，需手动调用订阅
+      console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+      if (app.globalData.socketConnected) {
+
+        app.wsSubscribe();
+      }
     })
+    // wx.request({
+    //   url: 'http://localhost:8090/master/doingActivity',
+    //   method: 'POST',
+    //   success: (res) => {
+     
+    //   },
+    // })
 
   },    
   
@@ -93,6 +96,9 @@ Page({
     })
   },
   dang() {
-    getApp().dang();
+    myRequest({
+      url: 'http://localhost:8090/master/attendActivityList',
+      method: 'POST'}).then(res=>{console.log(res)});
+    console.log(1)
   },
 })
