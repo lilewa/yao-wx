@@ -8,7 +8,25 @@ Page({
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     doingActivity:null,
-    startLoading:false,
+    startLoading:true,
+    endLoading:true,
+    hasNoActivity:true,
+    activityOpen:false,
+    edit:false,
+    che:true,
+     activity:{
+      id:'',
+      name:'第一',
+      createtime:'',
+      state:'',
+      joinme:false,
+      repeats:false
+    },
+    tmpActivity:{
+      name: '第一', 
+      joinme: false,
+      repeats: false
+    }
   },
   //事件处理函数
   bindViewTap: function() {
@@ -53,8 +71,18 @@ Page({
     //   method: 'POST'
     // }).then(res=>{
     //   console.log(res);
-    //   if (!res.data.entity)
-    //     return;
+    //   if (!res.data.entity){
+          // this.startLoading=false;
+          // this.endLoading=false;
+          // this.hasNoActivity=true;
+          // this.setData({
+          //   startLoading: false,
+          //   endLoading: false,
+          //   hasNoActivity:true
+          //       });
+          //       return;
+      //    }
+    //     
 
     //   this.doingActivity = res.data.entity;
     //   this.setData({ doingActivity: res.data.entity });
@@ -74,7 +102,15 @@ Page({
 
     //     app.wsSubscribe();
     //   }
-    // }).catch(res=>console.log(res));
+        // this.startLoading = false;
+        // this.endLoading = false;
+        // this.hasNoActivity = false;
+        // this.setData({
+        //   startLoading: false,
+        //   endLoading: false,
+        //   hasNoActivity: false
+        // });
+    // }).then(()=>app.openSocket()).catch(res=>console.log(res));
    
 
   },    
@@ -99,13 +135,42 @@ Page({
   
   },
   bindStartTap(){
-    
-    if (this.startLoading){
+    if (this.data.startLoading){
       return;
     }
     console.log('zou');
-    this.startLoading = true;
     this.setData({ startLoading: true });
+  },
+  openToggle(){
+    if(this.data.edit)//编辑模式下点击不会隐藏明细
+      return;
+
+    this.setData({ activityOpen: !this.data.activityOpen });
+  },
+  editActivity(){ 
+    this.setData({ edit: true });
+    this.data.tmpActivity.name=this.data.activity.name;
+    this.data.tmpActivity.joinme = this.data.activity.joinme;
+    this.data.tmpActivity.repeats = this.data.activity.repeats;
+      
+   },
+  cancelEdit(){
+    this.setData({ edit: false });
+
+    this.setData({ 'activity.name': this.data.tmpActivity.name });
+    this.setData({ 'activity.joinme': this.data.tmpActivity.joinme })
+    this.setData({ 'activity.repeats': this.data.tmpActivity.repeats })
+  },
+  nameInputChange(e){
+    this.setData({'activity.name': e.detail.value })
+  },
+  checkJoinme(e){
+    this.setData({ 'activity.joinme': e.detail.value});
+  },
+  checkRepeats(e) {
+    this.setData({ 'activity.repeats': e.detail.value });
+  },
+  activitySave(){
     
   }
 })

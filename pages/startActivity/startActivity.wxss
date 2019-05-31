@@ -1,9 +1,15 @@
-/**index.wxss**/
-.userinfo {
-  padding: 0 30rpx;
+@import "../../utils/weui.wxss";
+
+.banner{
   display: flex;
-  position: absolute;
-  top:0;
+  padding: 0 15rpx;
+}
+.userinfo {
+   flex:1 1 0;
+}
+.start-btn ,.end-btn{
+   flex:1 1 0;
+    padding: 0 10rpx;
 }
 
 .userinfo-avatar {
@@ -17,9 +23,12 @@
   align-items: center;
 }
 .getUserInfoBtn{
-  padding: 10rpx 10rpx;
-  border: 1rpx green solid;
-  margin : 0; 
+ 
+ padding-left:10px;
+ padding-right:10px;
+ border: 1rpx green solid;
+ margin : 0; 
+
 }
 
 .userinfo-nickname {
@@ -29,11 +38,74 @@
 .usermotto {
   margin-top: 200px;
 }
-.start-icon{
-  padding: 25rpx 40rpx;
-  display:inline-block;
- }
+ 
 
  /* .wrap button.button-hover {
   background-color: grey;
 } */
+.contont{
+  padding:0 30rpx 40rpx;
+}
+
+.activity{
+  margin-top:20rpx;
+  background-color:#FFFFFF;
+}
+
+.activity-item{
+  padding:30rpx;
+  display:flex;
+  align-items:center;
+}
+.activity-hd{
+  flex:auto;
+}
+.activity-arrow{
+  flex:none;
+  border-top: 2px solid rgba(0,0,0,0.5);
+  border-right: 2px solid rgba(0,0,0,0.5);
+  transform: rotate(45deg);
+  width: 15px;
+  height: 15px;
+  transition:transform .3s;
+}
+.activity-award-list{
+  display: none;
+}
+.activity-item-hd-show{
+  transform: rotate(135deg);
+}
+.activity-item-bd-show{
+  display: block;
+}
+
+/* .mini-btn{
+  margin-right: 10rpx;
+} */
+ .weui-cell button{
+   margin-left: 0;
+   margin-right: 20rpx;
+ }
+ .weui-cell{
+   min-height: 44px;
+ }
+ .activity-hd input[disabled]{
+   color:#999999;
+ }
+ .button-container{
+   position: relative;
+ }
+ .bouncebtn{
+   position: absolute;
+   display: flex; 
+   transform:translate(0,100%);
+   opacity: 0;
+   transition:   all 0.3s;
+ }
+ .bouncebtn-in{
+   transform:translate(0,0);
+   opacity: 1;
+ }
+ .modifybtn-edit-disapear{
+   opacity: 0;
+ }
