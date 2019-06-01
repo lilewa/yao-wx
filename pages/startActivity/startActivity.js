@@ -8,19 +8,22 @@ Page({
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     doingActivity:null,
-    startLoading:true,
-    endLoading:true,
+    disableStartActivity:true,
+    disableEndActivity:true,
     hasNoActivity:true,
     activityOpen:false,
-    edit:false,
-    che:true,
-     activity:{
+    isEdit:false,
+    isNew:false,
+    activity:{
       id:'',
       name:'第一',
       createtime:'',
       state:'',
-      joinme:false,
-      repeats:false
+      joinme:'0',
+      repeats:'1',
+      masterName:'mastterna',
+      listAward:[],
+      
     },
     tmpActivity:{
       name: '第一', 
@@ -35,82 +38,57 @@ Page({
     })
   },
   onLoad: function () {
-    // if (app.globalData.userInfo) {
-    //   this.setData({
-    //     userInfo: app.globalData.userInfo,
-    //     hasUserInfo: true
-    //   })
-    // } else if (this.data.canIUse){
- 
-    //   // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-    //   // 所以此处加入 callback 以防止这种情况
-    //   app.userInfoReadyCallback = res => {
-      
-    //     this.setData({
-    //       userInfo: res.userInfo,
-    //       hasUserInfo: true
-    //     })
-    //   }
-    // } else {
-    //   console.log('else');
-
-    //   // 在没有 open-type=getUserInfo 版本的兼容处理
-    //   wx.getUserInfo({
-    //     success: res => {
-    //       app.globalData.userInfo = res.userInfo
-    //       this.setData({
-    //         userInfo: res.userInfo,
-    //         hasUserInfo: true
-    //       })
-    //     }
-    //   })
-    // }
+    if (app.globalData.userInfo) {
+      this.setData({
+        userInfo: app.globalData.userInfo,
+        hasUserInfo: true
+      })
+    } else {
+      app.globalData.subscribeUserInfo.push((userInfo)=>{
+        this.setData({
+          userInfo: userInfo,
+          hasUserInfo: true
+        })
+      })
+    }
     
-    // myRequest({
-    //   url: 'http://localhost:8090/master/attendActivityList',
-    //   method: 'POST'
-    // }).then(res=>{
-    //   console.log(res);
-    //   if (!res.data.entity){
-          // this.startLoading=false;
-          // this.endLoading=false;
-          // this.hasNoActivity=true;
-          // this.setData({
-          //   startLoading: false,
-          //   endLoading: false,
-          //   hasNoActivity:true
-          //       });
-          //       return;
-      //    }
-    //     
+    myRequest({
+      url: 'http://localhost:8090/master/doingActivity',
+      method: 'POST'
+    }).then(res=>{
+      console.log(res);
+      if (!res.data.entity){
+        this.setData({
+          disableStartActivity: false,
+          disableEndActivity: true,
+          hasNoActivity:true
+                });
+          return;
+         } 
+      this.setData({ activity: res.data.entity });
 
-    //   this.doingActivity = res.data.entity;
-    //   this.setData({ doingActivity: res.data.entity });
+      if (!app.globalData.subscribe.startLucky[this.data.activity.id]) {
+        app.globalData.subscribe.startLucky[this.data.activity.id] = null;
+      }
+      if (!app.globalData.subscribe.closeActivity[this.data.activity.id]) {
+        app.globalData.subscribe.closeActivity[this.data.activity.id] = null;
+      }
+      app.globalData.subscribe.joinAcvtity[this.data.activity.id] = null;
 
+      //websocket已经建立，需手动调用订阅
+      console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+      if (app.globalData.socketConnected) {
 
-    //   if (!app.globalData.subscribe.startLucky[this.doingActivity.id]) {
-    //     app.globalData.subscribe.startLucky[this.doingActivity.id] = null;
-    //   }
-    //   if (!app.globalData.subscribe.closeActivity[this.doingActivity.id]) {
-    //     app.globalData.subscribe.closeActivity[this.doingActivity.id] = null;
-    //   }
-    //   app.globalData.subscribe.joinAcvtity[this.doingActivity.id] = null;
-
-    //   //websocket已经建立，需手动调用订阅
-    //   console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
-    //   if (app.globalData.socketConnected) {
-
-    //     app.wsSubscribe();
-    //   }
-        // this.startLoading = false;
-        // this.endLoading = false;
-        // this.hasNoActivity = false;
-        // this.setData({
-        //   startLoading: false,
-        //   endLoading: false,
-        //   hasNoActivity: false
-        // });
-    // }).then(()=>app.openSocket()).catch(res=>console.log(res));
+        app.wsSubscribe();
+      }
+ 
+      this.setData({
+        disableStartActivity: true,
+        disableEndActivity: false,
+        hasNoActivity: false
+      });
+    })
+    //.then(()=>app.openSocket()).catch(res=>console.log(res));
    
 
   },    
@@ -135,42 +113,92 @@ Page({
   
   },
   bindStartTap(){
-    if (this.data.startLoading){
-      return;
-    }
+  
     console.log('zou');
-    this.setData({ startLoading: true });
+    this.setData({ 
+      disableStartActivity: true,
+      isNew:true,
+      isEdit:true,
+      activityOpen:true
+     });
   },
   openToggle(){
-    if(this.data.edit)//编辑模式下点击不会隐藏明细
+    if (this.data.isEdit)//编辑模式下点击不会隐藏明细
       return;
 
     this.setData({ activityOpen: !this.data.activityOpen });
   },
   editActivity(){ 
-    this.setData({ edit: true });
+    this.setData({ isEdit: true });
     this.data.tmpActivity.name=this.data.activity.name;
     this.data.tmpActivity.joinme = this.data.activity.joinme;
     this.data.tmpActivity.repeats = this.data.activity.repeats;
-      
    },
   cancelEdit(){
-    this.setData({ edit: false });
 
-    this.setData({ 'activity.name': this.data.tmpActivity.name });
-    this.setData({ 'activity.joinme': this.data.tmpActivity.joinme })
-    this.setData({ 'activity.repeats': this.data.tmpActivity.repeats })
+    if(this.data.isNew){
+      this.setData({
+        disableStartActivity: false,
+        isNew: false,
+        isEdit: false,
+        activityOpen: false
+      });
+    }else{
+      this.setData({
+        isEdit: false,
+        'activity.name': this.data.tmpActivity.name,
+        'activity.joinme': this.data.tmpActivity.joinme,
+        'activity.repeats': this.data.tmpActivity.repeats
+      });
+    }
+  
+ 
   },
   nameInputChange(e){
     this.setData({'activity.name': e.detail.value })
   },
   checkJoinme(e){
-    this.setData({ 'activity.joinme': e.detail.value});
+    this.setData({ 'activity.joinme': e.detail.value?'1':'0'});
+    console.log(this.data.activity.joinme);
   },
   checkRepeats(e) {
-    this.setData({ 'activity.repeats': e.detail.value });
+    this.setData({ 'activity.repeats': e.detail.value ? '1' : '0' });
   },
   activitySave(){
+    let method=null;
+    let notify=null;
+    if(this.data.isNew){
+      method ='insertActivity';
+      notify='发起成功';
+    }else{
+      method='updateActivity';
+      notify='修改成功';
+    }
+    myRequest({
+      url: 'http://localhost:8090/master/' + method,
+      method: 'POST',
+      data:this.data.activity
+    }).then(res => {
+      console.log(res);
+      if (this.data.isNew) {
+        //this.data.activity.id = res.data.id;
+        this.setData({
+          'activity.id': res.data.id,
+          isEdit:false,
+          isNew: false,
+          hasNoActivity: false
+        });
+      }else{
+        this.setData({
+          isEdit: false
+        });
+      }
     
+      wx.showToast({ // 显示Toast
+        title: notify,
+        icon: 'success',
+        duration: 1500
+      })
+    });
   }
 })

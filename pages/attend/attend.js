@@ -5,7 +5,9 @@ Page({
   data: {
     logs: [],
     attendActivityList:[],
-    dang:'dang'
+    dang:'dang',
+    userInfo: {},
+    hasUserInfo: false,
   },
   onLoad: function () {
     // this.setData({
@@ -13,6 +15,20 @@ Page({
     //     return util.formatTime(new Date(log))
     //   })
     // })   
+    if (app.globalData.userInfo) {
+      this.setData({
+        userInfo: app.globalData.userInfo,
+        hasUserInfo: true
+      })
+    } else {
+      app.globalData.subscribeUserInfo.push((userInfo) => {
+        this.setData({
+          userInfo: userInfo,
+          hasUserInfo: true
+        })
+      })
+    }
+    
     let that =this;
     app.globalData.subscribe.startLucky.onReceiver.attend=function(mes){
       console.log(mes);

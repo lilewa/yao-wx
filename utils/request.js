@@ -20,7 +20,8 @@ module.exports = function (obj){
       obj.header.cookie = app.globalData.sessionId
     } else {
       obj.header = { cookie: app.globalData.sessionId }
-    } 
+    }
+    console.log(obj) ;
     wx.request(obj);
   }).then(
     res=>{

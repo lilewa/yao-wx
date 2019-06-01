@@ -11,7 +11,7 @@
     </view>
 
     <view class="start-btn">
-        <button  type="primary" wx:if="{{hasNoActivity}}" loading="{{startLoading}}" bindtap="bindStartTap">发起  </button>
+        <button  type="primary" wx:if="{{hasNoActivity}}" disabled="{{disableStartActivity}}" bindtap="bindStartTap">发起  </button>
         <!-- 显示活动的二维码 -->
         <view wx:else class="userinfo-avatar-container">
           <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
@@ -19,55 +19,62 @@
     </view>
     
      <view class="end-btn">
-         <button  wx:if="{{!hasNoActivity}}" type="primary" loading="{{endLoading}}" bindtap="bindStartTap">结束  </button>
+         <button  wx:if="{{!hasNoActivity}}" type="primary" disabled="{{disableEndActivity}}" bindtap="bindStartTap">结束  </button>
     </view>
     
   </view>
 
   <view class="contont">
-    <view class="activity">
+    <view class="activity" wx:if="{{isNew||activity.id}}">
       <view class="activity-item" bindtap="openToggle">
         <view class="activity-hd">
-         <input  bindinput="nameInputChange"  value="{{activity.name}}" disabled="{{!edit}}"/>
+         <input  bindinput="nameInputChange"  value="{{activity.name}}" disabled="{{!isEdit}}"/>
         </view>
         <view class="activity-arrow {{activityOpen ? 'activity-item-hd-show' : ''}}"></view>
       </view>
-      <view class="activity-detail"></view>
-    </view>
-    <view class="activity-award-list {{activityOpen ? 'activity-item-bd-show' : ''}}">
-       <view class="weui-cells weui-cells_after-title">
-        
-        <view class="weui-cell weui-cell_switch">
+      <view class="activity-detail weui-cells weui-cells_after-title {{activityOpen ? 'activity-item-bd-show' : ''}}">
+         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">本人参加</view>
           <view class="weui-cell__ft">
-            <switch bindchange="checkJoinme" checked="{{activity.joinme}}" disabled="{{!edit}}" />
+            <switch bindchange="checkJoinme" checked="{{activity.joinme==='1'}}" disabled="{{!isEdit}}" />
           </view>
         </view>
+
         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">重复参加</view>
           <view class="weui-cell__ft">
-            <switch bindchange="checkRepeats" checked="{{activity.repeats}}"  disabled="{{!edit}}"  />
+            <switch bindchange="checkRepeats" checked="{{activity.repeats==='1'}}"  disabled="{{!isEdit}}"  />
           </view>
         </view>
+
         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">创建时间</view>
           <view class="weui-cell__ft">
-             <text>chuangdfsdfsdf</text>
+             <text>{{activity.repeats==='1'}}</text>
           </view>
         </view>
+
         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">结束时间</view>
           <view class="weui-cell__ft">
              <text>jidfsd</text>
           </view>
         </view>
+
         <view class="weui-cell button-container">
-          <button class="{{edit?'modifybtn-edit-disapear':''}}" bindtap="editActivity" type="primary"   size="mini">修改</button>
-          <view class="bouncebtn {{edit?'bouncebtn-in':''}}">
+          <button class="{{isEdit?'modifybtn-edit-disapear':''}}" bindtap="editActivity" type="primary"   size="mini">修改</button>
+          <view class="bouncebtn {{isEdit?'bouncebtn-in':''}}">
             <button bindtap="activitySave" type="primary"   size="mini">保存</button>
             <button bindtap="cancelEdit"  size="mini">取消</button>
           </view>
         </view>
+      </view>
+    </view>
+
+    <view class="activity-award-list {{activityOpen ? 'activity-item-bd-show' : ''}}">
+       <view class="weui-cells weui-cells_after-title">
+       
+        
       </view>
     </view>
   </view>

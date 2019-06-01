@@ -11,15 +11,12 @@ App({
         if (res.authSetting['scope.userInfo']) {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
           wx.getUserInfo({
-            success: res => {
-              // 可以将 res 发送给后台解码出 unionId
-              this.globalData.userInfo = res.userInfo
-
+            success: res => { 
+               // 可以将 res 发送给后台解码出 unionId
               // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
               // 所以此处加入 callback 以防止这种情况
-              if (this.userInfoReadyCallback) {
-                this.userInfoReadyCallback(res)
-              }
+               
+              this.setUserinfo(res.userInfo);
             }
           })
         }
@@ -42,6 +39,7 @@ App({
     stompClient:null,
     socketConnected:false,
     sessionId:'',
+    subscribeUserInfo:[],
     subscribe:{
       startLucky:{
         onReceiver:{
@@ -70,7 +68,12 @@ App({
     }
    
   },
- 
+ setUserinfo(userInfo){
+   this.globalData.userInfo = userInfo ;
+   for (let func of this.globalData.subscribeUserInfo){
+     func(userInfo);
+   }
+ },
   wsSubscribe(){
     let that=this;
     for (let method in this.globalData.subscribe){
@@ -93,7 +96,7 @@ App({
     //let messageQueue = [];
     // 是否断线重连
     let reconnect = true;
-
+    let reconnectCount=3;
     // 发送消息
     function sendSocketMessage(msg) {
       wx.sendSocketMessage({
@@ -146,7 +149,8 @@ App({
       console.error('socket error:', error)
       if (!this.globalData.socketConnected) {
         // 断线重连
-        if (reconnect) {
+        if (reconnect && reconnectCount>0) {
+          reconnectCount--;
           connect();
         }
       }
