@@ -48,7 +48,7 @@
 }
 
 .activity{
-  margin-top:20rpx;
+  margin:20rpx 0;
   background-color:#FFFFFF;
 }
 
@@ -69,7 +69,7 @@
   height: 15px;
   transition:transform .3s;
 }
-.activity-award-list,.activity-detail{
+.activity-detail{
   display: none;
 }
 .activity-item-hd-show{

@@ -1,4 +1,4 @@
-
+const myRequest = require('../../utils/request')
 var app=getApp();
 
 Page({
@@ -7,6 +7,7 @@ Page({
     attendActivityList:[],
     dang:'dang',
     userInfo: {},
+    canIUse: wx.canIUse('button.open-type.getUserInfo'),
     hasUserInfo: false,
   },
   onLoad: function () {
@@ -37,10 +38,11 @@ Page({
         dang: 'haha'
       })
     }
-  wx.request({
-    url: 'http://localhost:8090/master/attendActivityList',
-      method:'POST',
-      success:(res)=>{
+  myRequest({
+      url: 'http://localhost:8090/master/attendActivityList',
+      method:'POST'
+      })
+      .then((res)=>{
         console.log(res.data);
         this.attendActivityList=res.data.list;
         this.setData({attendActivityList: res.data.list});
@@ -62,15 +64,19 @@ Page({
           app.wsSubscribe();
         }
        
-      },
-    })
+      })
+       
  
+  },
+  getUserInfo: function (e) {
+    if (e.detail.userInfo)
+      app.setUserinfo(e.detail.userInfo);
   },
   onShow: function () {
     wx.hideTabBarRedDot({ index: 1, fail: function () { console.log('fail') } });
   },
   dang() {
-    getApp().dang();
+    console.log(this.data.userInfo);
   },
   tapRow: function (e) {
     // 传递的参数

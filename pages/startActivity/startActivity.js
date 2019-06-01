@@ -7,7 +7,6 @@ Page({
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
-    doingActivity:null,
     disableStartActivity:true,
     disableEndActivity:true,
     hasNoActivity:true,
@@ -31,12 +30,12 @@ Page({
       repeats: false
     }
   },
-  //事件处理函数
-  bindViewTap: function() {
-    wx.navigateTo({
-      url: '../logs/logs'
-    })
-  },
+  // //事件处理函数
+  // bindViewTap: function() {
+  //   wx.navigateTo({
+  //     url: '../logs/logs'
+  //   })
+  // },
   onLoad: function () {
     if (app.globalData.userInfo) {
       this.setData({
@@ -97,12 +96,8 @@ Page({
     wx.hideTabBarRedDot({ index: 0, fail: function () { console.log('fail') } });
   },
   getUserInfo: function(e) {
-    console.log(e)
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
+    if(e.detail.userInfo)
+      app.setUserinfo(e.detail.userInfo);
   },
   dang() {
     myRequest({

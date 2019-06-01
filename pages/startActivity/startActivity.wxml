@@ -5,13 +5,13 @@
     <view class="userinfo">
       <button class='getUserInfoBtn ' wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo"    bindgetuserinfo="getUserInfo"> 获取头像 </button>
       <view wx:else class="userinfo-avatar-container">
-        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+        <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
         <text class="userinfo-nickname">{{userInfo.nickName}}</text>
       </view>
     </view>
 
     <view class="start-btn">
-        <button  type="primary" wx:if="{{hasNoActivity}}" disabled="{{disableStartActivity}}" bindtap="bindStartTap">发起  </button>
+        <button  type="primary" wx:if="{{hasNoActivity}}" disabled="{{disableStartActivity||!hasUserInfo}}" bindtap="bindStartTap">发起  </button>
         <!-- 显示活动的二维码 -->
         <view wx:else class="userinfo-avatar-container">
           <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
@@ -71,9 +71,13 @@
       </view>
     </view>
 
-    <view class="activity-award-list {{activityOpen ? 'activity-item-bd-show' : ''}}">
-       <view class="weui-cells weui-cells_after-title">
-       
+    <view wx:if="{{activity.id}}"  style="text-align:right">
+        <button type="primary" size="mini">增加奖项</button>
+    </view>
+
+    <view class="activity-award-list">
+       <view wx:for="{{activity.listAward}}" class="weui-cells weui-cells_after-title">
+        
         
       </view>
     </view>
