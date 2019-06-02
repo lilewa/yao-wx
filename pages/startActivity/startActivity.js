@@ -13,6 +13,8 @@ Page({
     activityOpen:false,
     isEdit:false,
     isNew:false,
+    popup: null,
+    popupAward:{name:'',num:1},
     activity:{
       id:'',
       name:'第一',
@@ -37,6 +39,7 @@ Page({
   //   })
   // },
   onLoad: function () {
+    this.data.popup=this.selectComponent('#popup');
     if (app.globalData.userInfo) {
       this.setData({
         userInfo: app.globalData.userInfo,
@@ -99,14 +102,7 @@ Page({
     if(e.detail.userInfo)
       app.setUserinfo(e.detail.userInfo);
   },
-  dang() {
-    myRequest({
-      url: 'http://localhost:8090/master/attendActivityList',
-      method: 'POST'}
-      )
-      .then(res=>{console.log(res)});
-  
-  },
+
   bindStartTap(){
   
     console.log('zou');
@@ -195,5 +191,28 @@ Page({
         duration: 1500
       })
     });
-  }
+  },
+  setpopupAwardName(e){
+    this.data.popupAward.name = e.detail.value;
+  },
+  setpopupAwardNum(e) {
+    this.data.popupAward.num=e.detail.value;
+  },
+  newAword() {
+    this.data.popup.show();
+  },
+  confirmAword(){
+    if(!this.data.popupAward.name){
+      return;
+    }
+    console.log(this.data.popupAward)  ;
+
+    //成功
+    this.data.popupAward.name="";
+    this.data.popupAward.num = 1;
+
+  },
+  dang() {
+    this.data.popup.show();
+  },
 })

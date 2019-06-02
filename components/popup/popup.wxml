@@ -1,0 +1,21 @@
+<block wx:if="{{showModal}}">
+  <view class="modal-mask" catchtouchmove="preventTouchMove"></view>
+  <view class="modal-dialog" catchtouchmove="preventTouchMove">
+    <view class='m-title'>
+      {{title}}
+    </view>
+    
+  <slot>
+    
+  </slot>
+    
+    <view class="modal-footer">
+      <view class="btn-footer btn-l-footer" bindtap="_onCancel">
+        <text>{{cancelText}}</text>
+      </view>
+      <view class="btn-footer btn-r-footer" bindtap="_onConfirm">
+        <text>{{confirmText}}</text>
+      </view>
+    </view>
+  </view>
+</block>
