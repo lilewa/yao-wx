@@ -76,9 +76,28 @@
     </view>
 
     <view class="activity-award-list">
-       <view wx:for="{{activity.listAward}}" class="weui-cells weui-cells_after-title">
-        
-        
+       <view wx:for="{{activity.listAward}}" class="award-box">
+          <view class="activity-item" data-index="{{index}}" bindtap="toggleAward">
+            <view class="activity-hd">
+            <input  bindinput="nameInputChange"  value="{{item.name}}" disabled="{{!isEdit}}"/>
+            </view>
+            <view class="activity-arrow {{item.open ? 'activity-item-hd-show' : ''}}"></view>
+          </view>
+
+          <view class="weui-cells weui-cells_after-title activity-awardlist {{item.open ? 'activity-item-bd-show' : ''}}">
+            <view class="weui-cell splitbtn">
+             
+               <button bindtap="activitySave" type="primary"   size="mini">开始</button>
+
+             
+              <view class="rightbtn" >
+                <button bindtap="cancelEdit"  size="mini">修改</button>
+                <button bindtap="cancelEdit" type="warn" size="mini">删除</button>
+              </view>
+               
+            </view>
+         
+          </view>
       </view>
     </view>
   </view>
@@ -86,7 +105,7 @@
   <view class="usermotto">
     <text class="user-motto">{{motto}}</text>
   </view>
-      <button bindtap='fa' bindtap='dang'>dang</button>
+      
   <popup id="popup" title="增加奖项" bindconfirm="confirmAword">
       <view class="page-section-title">奖项名</view>
       <view class="weui-cells weui-cells_after-title">
@@ -100,6 +119,8 @@
       <slider block-size="18" min="1" value="1" max="10" name="slider" show-value bindchange="setpopupAwardNum" ></slider>
 
   </popup>
+
+  <button bindtap='fa' bindtap='dang'>dang</button>
 </view>
 
 

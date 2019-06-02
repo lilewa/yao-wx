@@ -3,7 +3,6 @@ const app = getApp()
 
 Page({
   data: {
-    motto: 'Hello World',
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
@@ -66,7 +65,8 @@ Page({
           hasNoActivity:true
                 });
           return;
-         } 
+         }
+  
       this.setData({ activity: res.data.entity });
 
       if (!app.globalData.subscribe.startLucky[this.data.activity.id]) {
@@ -201,16 +201,38 @@ Page({
   newAword() {
     this.data.popup.show();
   },
+  //弹出框输入名称人数，确定后增加奖项
   confirmAword(){
     if(!this.data.popupAward.name){
       return;
     }
-    console.log(this.data.popupAward)  ;
+    //console.log(this.data.popupAward);
 
-    //成功
-    this.data.popupAward.name="";
-    this.data.popupAward.num = 1;
+    let award={
+      activityId:this.data.activity.id,
+      name: this.data.popupAward.name,
+      amount: this.data.popupAward.num,
+      state:'0'
+    };
+    myRequest({
+      url: 'http://localhost:8090/master/insertAward',
+      method: 'POST',
+      data: award
+    }).then(res => {
+      award.id=res.data.id;
+      //console.log(award);
+      this.activity.listAward.push(award);
+      //成功
+      this.data.popupAward.name = "";
+      this.data.popupAward.num = 1;
+    });
 
+  },
+  toggleAward(e){
+   
+    let index = e.currentTarget.dataset['index'];
+    let prop = 'activity.listAward[' + index + '].open';
+    this.setData({ [prop]: !this.data.activity.listAward[index].open})
   },
   dang() {
     this.data.popup.show();

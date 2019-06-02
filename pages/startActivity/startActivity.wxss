@@ -69,7 +69,7 @@
   height: 15px;
   transition:transform .3s;
 }
-.activity-detail{
+.activity-detail,.activity-awardlist{
   display: none;
 }
 .activity-item-hd-show{
@@ -86,7 +86,7 @@
    margin-left: 0;
    margin-right: 20rpx;
  }
- .weui-cell{
+ .activity-detail .weui-cell{
    min-height: 44px;
  }
  .activity-hd input[disabled]{
@@ -119,4 +119,24 @@
   margin-bottom:10rpx;
   padding-left:30rpx;
   padding-right:30rpx;
+}
+
+.award-box{
+  position:relative;
+  margin-top:1.17647059em;
+  background-color:#FFFFFF;
+  line-height:1.41176471;
+  font-size:17px;
+}
+.splitbtn button{
+  vertical-align: bottom;
+}
+.rightbtn{
+  flex:1;
+  display: flex;
+  justify-content:flex-end; 
+}
+.rightbtn button{
+  margin-right:0rpx;
+  margin-left:20rpx;
 }
