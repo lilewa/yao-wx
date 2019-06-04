@@ -32,13 +32,25 @@
 			"current": -1,
 			"list": []
 		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
 		"game": {
 			"currentL": -1,
 			"list": []
 		},
 		"miniprogram": {
-			"current": -1,
-			"list": []
+			"current": 0,
+			"list": [
+				{
+					"id": 0,
+					"name": "扫码进入",
+					"pathName": "pages/attend/attend",
+					"query": "scene=activityId",
+					"scene": 1047
+				}
+			]
 		}
 	}
 }

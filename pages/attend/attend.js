@@ -10,12 +10,14 @@ Page({
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     hasUserInfo: false,
   },
-  onLoad: function () {
+  onLoad: function (query) {
     // this.setData({
     //   logs: (wx.getStorageSync('logs') || []).map(log => {
     //     return util.formatTime(new Date(log))
     //   })
-    // })   
+    // })
+    const scene= decodeURIComponent(query.scene)
+    console.log(scene);
     if (app.globalData.userInfo) {
       this.setData({
         userInfo: app.globalData.userInfo,

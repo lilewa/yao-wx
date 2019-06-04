@@ -76,7 +76,7 @@
     </view>
 
     <view class="activity-award-list">
-       <view wx:for="{{activity.listAward}}" class="award-box">
+       <view wx:for="{{activity.listAward}}" wx:key="id" class="award-box">
           <view class="activity-item" data-index="{{index}}" bindtap="toggleAward">
             <view class="activity-hd">
             <input  bindinput="nameInputChange"  value="{{item.name}}" disabled="{{!isEdit}}"/>
@@ -85,18 +85,16 @@
           </view>
 
           <view class="weui-cells weui-cells_after-title activity-awardlist {{item.open ? 'activity-item-bd-show' : ''}}">
-            <view class="weui-cell splitbtn">
-             
-               <button bindtap="activitySave" type="primary"   size="mini">开始</button>
-
-             
-              <view class="rightbtn" >
-                <button bindtap="cancelEdit"  size="mini">修改</button>
-                <button bindtap="cancelEdit" type="warn" size="mini">删除</button>
-              </view>
-               
+            <view class="weui-cell splitbtn" wx:if="{{item.state==='0'}}">
+              <button bindtap="startLucky" data-id="{{item.id}}" type="primary"  size="mini">开始</button>
+              <view class="rightbtn">
+                <button bindtap="updateAward" data-index="{{index}}"  size="mini">修改</button>
+                <button bindtap="deleteAward" data-index="{{index}}" type="warn" size="mini" >删除</button>
+              </view> 
             </view>
-         
+            <view class="weui-cell" wx:for="{{item.listPlayer}}"  wx:for-item="player" wx:key="id">
+              {{player.playerName}}
+            </view>
           </view>
       </view>
     </view>
@@ -106,21 +104,21 @@
     <text class="user-motto">{{motto}}</text>
   </view>
       
-  <popup id="popup" title="增加奖项" bindconfirm="confirmAword">
+  <popup id="popup" title="增加奖项" bindconfirm="confirmAward" bindcancel="cancelAward">
       <view class="page-section-title">奖项名</view>
       <view class="weui-cells weui-cells_after-title">
           <view class="weui-cell weui-cell_input">
             <view class="weui-cell__bd">
-              <input class="weui-input" bindinput="setpopupAwardName" />
+              <input class="weui-input" value="{{popupAward.name}}" bindinput="setpopupAwardName" />
             </view>
           </view>
       </view>
       <view class="page-section-title" style='margin-top:15rpx'>获奖人数</view>
-      <slider block-size="18" min="1" value="1" max="10" name="slider" show-value bindchange="setpopupAwardNum" ></slider>
+      <slider block-size="18" min="1" value="{{popupAward.amount}}" max="10" name="slider" show-value bindchange="setpopupAwardNum" ></slider>
 
   </popup>
 
-  <button bindtap='fa' bindtap='dang'>dang</button>
+  <button bindtap='fa' bindtap='dang'>{{dang}}</button>
 </view>
 
 

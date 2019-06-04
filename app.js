@@ -38,7 +38,7 @@ App({
     userInfo: null,
     stompClient:null,
     socketConnected:false,
-    sessionId:'',
+    sessionId:'123',
     subscribeUserInfo:[],
     subscribe:{
       startLucky:{
@@ -89,7 +89,7 @@ App({
   },
   openSocket(){
 
-    //let that = this;
+    let that = this;
     // socket是否连接
    // let socketConnected = false;
     // 待发送的消息队列
@@ -122,10 +122,10 @@ App({
       wx.connectSocket({
         url: 'ws://localhost:8090/messageServer',
         success: () => {
+          
           console.log('stomp connect');
-          stompClient.connect({},  (callback)=> {
-            this.wsSubscribe();
-            console.log('ding');
+          stompClient.connect({}, (callback)=> {
+            that.wsSubscribe();
            });
         }
       })
