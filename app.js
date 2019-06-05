@@ -63,6 +63,7 @@ App({
   //收到websocket消息后调用每个页面订阅的方法
   dispatch(mes, onReceiver){ 
     for (let method in onReceiver){
+      console.log(method);
       if (onReceiver[method])
         onReceiver[method](mes);
     }

@@ -73,52 +73,7 @@ Page({
          }
   
       this.setData({ activity: res.data.entity });
-
-      //没在其他页面订阅过
-      if (!app.globalData.subscribe.startLucky[this.data.activity.id]) {
-        app.globalData.subscribe.startLucky[this.data.activity.id] = null;
-      }
-       //没在其他页面订阅过
-      if (!app.globalData.subscribe.closeActivity[this.data.activity.id]) {
-        app.globalData.subscribe.closeActivity[this.data.activity.id] = null;
-      }
-      app.globalData.subscribe.joinAcvtity[this.data.activity.id] = null;
-
-      //websocket已经建立，需手动调用订阅
-      console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
-      if (app.globalData.socketConnected) {
-
-        app.wsSubscribe();
-      }
-
-      //设置 参加活动的websocket通知 回调
-      app.globalData.subscribe.joinAcvtity.onReceiver.startActivity =  (mes)=> {
-        console.log(mes.body);
-         
-        this.setData({
-          dang: 'haha'
-        })
-        //如果当前页不是此tab需要亮红点
-      }
-      app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
-        console.log(mes.body);
-        //判断是不是本人发起的活动，不是的话忽略
-        this.setData({
-          dang: 'haha'
-        })
-       //如果当前页不是此tab需要亮红点
-
-      }
-      app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
-        console.log(mes.body);
-        //判断是不是本人发起的活动，不是的话忽略
-        this.setData({
-          dang: 'haha'
-        })
-        //如果当前页不是此tab需要亮红点
-
-      }
-
+      this.subscribe();
       this.setData({
         disableStartActivity: true,
         disableEndActivity: false,
@@ -130,6 +85,69 @@ Page({
 
   },    
   
+  subscribe(){
+
+    //没在其他页面订阅过，添加需要订阅的id
+    if (!app.globalData.subscribe.startLucky[this.data.activity.id]) {
+      app.globalData.subscribe.startLucky[this.data.activity.id] = null;
+    }
+    //没在其他页面订阅过，添加需要订阅的id
+    if (!app.globalData.subscribe.closeActivity[this.data.activity.id]) {
+      app.globalData.subscribe.closeActivity[this.data.activity.id] = null;
+    }
+    //添加需要订阅的id
+    app.globalData.subscribe.joinAcvtity[this.data.activity.id] = null;
+
+    //websocket已经建立，需手动调用订阅
+    console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+    if (app.globalData.socketConnected) {
+      app.wsSubscribe();
+    }
+
+    //设置本页面收到通知的回调 参加活动的通知
+    app.globalData.subscribe.joinAcvtity.onReceiver.startActivity = (mes) => {
+      let data =JSON.parse(mes.body);
+      //判断是不是本人发起的活动，不是的话忽略
+      if(data.code!==0){
+        return ;
+      }
+      if (data.activityPlayer.activityId!==this.data.activity.id){
+        return
+      }
+      // console.log(data); 
+      // activityId
+      // avatarUrl
+      // jointime
+      // playerId 
+      // playerName
+      
+      this.setData({
+        dang: 'haha'
+      })
+      //如果当前页不是此tab需要亮红点
+    }
+
+    //设置本页面收到通知的回调 抽奖结果的通知
+    app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
+      console.log(mes.body);
+      //判断是不是本人发起的活动，不是的话忽略
+      this.setData({
+        dang: 'haha'
+      })
+      //如果当前页不是此tab需要亮红点
+
+    }
+    //设置本页面收到通知的回调 结束抽奖的通知
+    app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
+      console.log(mes.body);
+      //判断是不是本人发起的活动，不是的话忽略
+      this.setData({
+        dang: 'haha'
+      })
+      //如果当前页不是此tab需要亮红点
+
+    }
+  },
   onShow: function () {
     wx.hideTabBarRedDot({ index: 0, fail: function () { console.log('fail') } });
   },
@@ -214,6 +232,21 @@ Page({
           isNew: false,
           hasNoActivity: false
         });
+        //订阅参加活动的通知
+        app.globalData.subscribe.joinAcvtity[this.data.activity.id] = 
+          app.globalData.stompClient.subscribe('/sub/joinAcvtity/' + this.data.activity.id,
+          (mes) => { app.dispatch(mes, app.globalData.subscribe.joinAcvtity.onReceiver) }
+        );
+        if (this.data.activity.joinme==='1'){
+
+          let activityPlayer = {
+            activityId: this.data.activity.id,
+            playerName: this.data.userInfo.nickName,
+            avatarUrl: this.data.userInfo.avatarUrl
+          };
+          app.globalData.stompClient.send("/app/joinAcvtity/" + this.data.activity.id, {}, JSON.stringify(activityPlayer));
+         
+        }
       }else{
         this.setData({
           isEdit: false
@@ -354,7 +387,8 @@ Page({
       });
     });
   },
+ 
   dang() {
-    this.data.popup.show();
+    console.log(this.data.userInfo);
   },
 })
