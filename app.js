@@ -30,10 +30,6 @@ App({
     //logs.unshift(Date.now())
     //  wx.setStorageSync('logs', logs)
   },
-  onHide(){
-    console.log('close socket')
-    wx.closeSocket();
-  },
  
   globalData: {
     userInfo: null,

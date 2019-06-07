@@ -7,22 +7,19 @@ Page({
     stompClient: null,
     dang:'sha'
   },
+  onShareAppMessage() {
+    return {
+      title: '发奖了，手慢无',
+      path: '/pages/attend/attend',
+      imageUrl: '/image/share.jpg',
+    }
+  },
   onLoad: function () {
-    console.log('list');
-    var that=this;
-    app.globalData.stompClient.subscribe('/sub/joinAcvtity/10', function (message, headers) {
-      console.log("收到joinAcvtity消息：" + message.body);//body中为具体消息内容
-      that.dang='haha';
-      that.setData({
-        dang: 'haha'
-      })
-    });
+ 
    
   },
   onUnload: function () {
-    // 取消订阅
-    console.log('unload list');
-   // subscribeChatGroup.unsubscribe();
+    
   },
   tap(){
      

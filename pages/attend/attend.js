@@ -11,6 +11,13 @@ Page({
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     hasUserInfo: false,
   },
+  onShareAppMessage() {
+    return {
+      title: '系兄弟就来砍我玩',
+      path: '/pages/attend/attend',
+      imageUrl:'/image/share.jpg',
+    }
+  },
   onLoad: function (query) {
     // this.setData({
     //   logs: (wx.getStorageSync('logs') || []).map(log => {
