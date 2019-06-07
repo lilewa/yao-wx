@@ -1,4 +1,5 @@
-//app.js
+const config = require('utils/config')
+
 App({
   onLaunch: function () {
  
@@ -56,18 +57,32 @@ App({
         } 
       },
       closeActivity:{
-        onReceiver:{allPage:null}
+        onReceiver:{
+          startActivity: null,
+          attend: null,
+          detailActivity: null,
+        }
       }
     }
   },
   //收到websocket消息后调用每个页面订阅的方法
-  dispatch(mes, onReceiver){ 
-    for (let method in onReceiver){
-      console.log(method);
-      if (onReceiver[method])
-        onReceiver[method](mes);
+  dispatch(mes, onReceiver,method){
+    for (let page in onReceiver){
+      if (onReceiver[page])
+        onReceiver[page](mes); 
     }
-   
+    //结束订阅
+    if (method === 'closeActivity') {
+     // console.log('closeActivity');
+      let data = JSON.parse(mes.body);  
+      this.globalData.subscribe.startLucky[data.activityId].unsubscribe();
+      delete this.globalData.subscribe.startLucky[data.activityId];
+      this.globalData.subscribe.joinAcvtity[data.activityId].unsubscribe();
+      delete this.globalData.subscribe.joinAcvtity[data.activityId];
+      this.globalData.subscribe.closeActivity[data.activityId].unsubscribe();
+      delete this.globalData.subscribe.closeActivity[data.activityId];
+      //console.log(this.globalData.subscribe);
+     }
   },
  setUserinfo(userInfo){
    this.globalData.userInfo = userInfo ;
@@ -81,7 +96,7 @@ App({
       for (let id in this.globalData.subscribe[method]){
         if (!this.globalData.subscribe[method][id])
           this.globalData.subscribe[method][id] = this.globalData.stompClient.subscribe('/sub/' + method + '/' + id, 
-            (mes) => {this.dispatch(mes,this.globalData.subscribe[method].onReceiver)}
+            (mes) => { this.dispatch(mes, this.globalData.subscribe[method].onReceiver, method)}
               );
         }
        
@@ -121,7 +136,7 @@ App({
     function connect() {
       // 打开信道
       wx.connectSocket({
-        url: 'ws://localhost:8090/messageServer',
+        url: config.wsPath +'/messageServer',
         success: () => {
           
           console.log('stomp connect');
@@ -186,10 +201,6 @@ App({
         //this.setData({ socketStatus: 'closed' })
       }
     })
-  },
-  fa() {
-    // 向服务端发送消息
-    this.globalData.stompClient.send("/user/joinAcvtity/10", {});
   },
   dang(){
     console.log('socketConnected:' + this.globalData.socketConnected);

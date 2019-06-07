@@ -19,9 +19,9 @@
     </view>
     
      <view class="end-btn">
-         <button  wx:if="{{!hasNoActivity}}" type="primary" disabled="{{disableEndActivity}}" bindtap="bindStartTap">结束  </button>
+         <button  wx:if="{{!hasNoActivity}}"  disabled="{{disableEndActivity}}"  bindtap="bindEndTap">结束  </button>
     </view>
-    
+     
   </view>
 
   <view class="contont">

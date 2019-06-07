@@ -1,5 +1,6 @@
 const myRequest = require('../../utils/request')
-var app=getApp();
+const app=getApp();
+const config = require('../../utils/config')
 
 Page({
   data: {
@@ -41,7 +42,7 @@ Page({
       })
     }
     myRequest({
-      url: 'http://localhost:8090/master/attendActivityList',
+      url: config.servPath +'/master/attendActivityList',
       method:'POST'
       })
       .then((res)=>{

@@ -13,7 +13,19 @@ const formatNumber = n => {
   n = n.toString()
   return n[1] ? n : '0' + n
 }
-
+const myShowModal=obj=>{
+  return new Promise((resolve, reject) => {
+    obj.success = (res) => {
+      if (res.confirm) 
+        resolve(true);
+      else if (res.cancel)
+        resolve(false);
+      }
+    wx.showModal(obj);
+  });
+ 
+}
 module.exports = {
-  formatTime: formatTime
+  formatTime: formatTime,
+  myShowModal: myShowModal
 }

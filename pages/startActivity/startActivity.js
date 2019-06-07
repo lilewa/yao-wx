@@ -1,5 +1,7 @@
 const myRequest=require('../../utils/request')
 const app = getApp()
+const myShowModal = require('../../utils/util').myShowModal
+const config = require('../../utils/config')
 
 Page({
   data: {
@@ -17,17 +19,17 @@ Page({
     popupAward: { name: '', amount: 1, index:-1},
     activity:{
       id:'',
-      name:'第一',
+      name:'',
       createtime:'',
       state:'',
       joinme:'0',
       repeats:'1',
-      masterName:'mastterna',
+      masterName:'',
       listAward:[],
       
     },
     tmpActivity:{
-      name: '第一', 
+      name: '', 
       joinme: false,
       repeats: false
     }
@@ -39,7 +41,7 @@ Page({
   //   })
   // },
   onLoad: function () {
-
+    console.log(config.servPath);
     //获取页面弹出框
     this.data.popup=this.selectComponent('#popup');
     
@@ -59,18 +61,24 @@ Page({
     }
     
     myRequest({
-      url: 'http://localhost:8090/master/doingActivity',
+      url: config.servPath+'/master/doingActivity',
       method: 'POST'
     }).then(res=>{
       console.log(res);
+
+      if(!res.data.msg||res.data.code!==0){
+        console.log('1')
+        return Promise.reject(res.data.msg);
+      }
+      //没有正在进行的活动
       if (!res.data.entity){
-        this.setData({
+         this.setData({
           disableStartActivity: false,
           disableEndActivity: true,
           hasNoActivity:true
                 });
           return;
-         }
+      }
   
       this.setData({ activity: res.data.entity });
       this.subscribe();
@@ -80,7 +88,8 @@ Page({
         hasNoActivity: false
       });
     })
-    .then(()=>app.openSocket()).catch(res=>console.log(res));
+      .then(() => app.openSocket())
+      .catch(res => wx.showToast({ title: res, icon: 'none'}));
    
 
   },    
@@ -139,13 +148,27 @@ Page({
     }
     //设置本页面收到通知的回调 结束抽奖的通知
     app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
-      console.log(mes.body);
+      let data = JSON.parse(mes.body);   
+      console.log(mes.body)   ;
+      if (data.code !== 0) {
+        return;
+      }
       //判断是不是本人发起的活动，不是的话忽略
-      this.setData({
-        dang: 'haha'
-      })
-      //如果当前页不是此tab需要亮红点
 
+      if (data.activityId !== this.data.activity.id) {
+        return
+      }
+      this.setData({
+        activity:{
+          id: '',
+          name: '',
+          createtime: '',
+          state: '',
+          joinme: '0',
+          repeats: '1',
+          masterName: '',
+          listAward: []},
+      })
     }
   },
   onShow: function () {
@@ -155,16 +178,27 @@ Page({
     if(e.detail.userInfo)
       app.setUserinfo(e.detail.userInfo);
   },
-
+  //发起按钮
   bindStartTap(){
   
-    console.log('zou');
-    this.setData({ 
+     this.setData({ 
       disableStartActivity: true,
       isNew:true,
       isEdit:true,
       activityOpen:true
      });
+  },
+  bindEndTap(){
+   
+    myShowModal({
+      title: '提示',
+      content: '是否结束活动？'})
+    .then(confirm=>{
+      if (!confirm)
+        return;
+      app.globalData.stompClient.send('/app/closeActivity/'+this.data.activity.id);
+    });
+  
   },
   openToggle(){
     if (this.data.isEdit)//编辑模式下点击不会隐藏明细
@@ -179,7 +213,6 @@ Page({
     this.data.tmpActivity.repeats = this.data.activity.repeats;
    },
   cancelEdit(){
-
     if(this.data.isNew){
       this.setData({
         disableStartActivity: false,
@@ -208,18 +241,20 @@ Page({
   checkRepeats(e) {
     this.setData({ 'activity.repeats': e.detail.value ? '1' : '0' });
   },
+  //发起活动保存
   activitySave(){
     let method=null;
     let notify=null;
     if(this.data.isNew){
       method ='insertActivity';
       notify='发起成功';
+      this.data.activity.masterName=this.data.userInfo.nickName;
     }else{
       method='updateActivity';
       notify='修改成功';
     }
     myRequest({
-      url: 'http://localhost:8090/master/' + method,
+      url: config.servPath +'/master/' + method,
       method: 'POST',
       data:this.data.activity
     }).then(res => {
@@ -232,11 +267,16 @@ Page({
           isNew: false,
           hasNoActivity: false
         });
-        //订阅参加活动的通知
-        app.globalData.subscribe.joinAcvtity[this.data.activity.id] = 
-          app.globalData.stompClient.subscribe('/sub/joinAcvtity/' + this.data.activity.id,
-          (mes) => { app.dispatch(mes, app.globalData.subscribe.joinAcvtity.onReceiver) }
-        );
+        //参加活动的通知,添加需要订阅的id
+        app.globalData.subscribe.joinAcvtity[this.data.activity.id] =null; 
+        //结束活动的通知,添加需要订阅的id
+        app.globalData.subscribe.closeActivity[this.data.activity.id] =null;
+        //活动抽奖的通知,添加需要订阅的id
+        app.globalData.subscribe.startLucky[this.data.activity.id] =null;
+        //订阅
+        if (app.globalData.socketConnected) {
+          app.wsSubscribe();
+        }
         if (this.data.activity.joinme==='1'){
 
           let activityPlayer = {
@@ -245,7 +285,6 @@ Page({
             avatarUrl: this.data.userInfo.avatarUrl
           };
           app.globalData.stompClient.send("/app/joinAcvtity/" + this.data.activity.id, {}, JSON.stringify(activityPlayer));
-         
         }
       }else{
         this.setData({
@@ -283,7 +322,7 @@ Page({
         amount: this.data.popupAward.amount
       }
       myRequest({
-        url: 'http://localhost:8090/master/updateAward',
+        url: config.servPath +'/master/updateAward',
         method: 'POST',
         data: award
       }).then(res => {
@@ -316,7 +355,7 @@ Page({
         open: true
       };
       myRequest({
-        url: 'http://localhost:8090/master/insertAward',
+        url: config.servPath +'/master/insertAward',
         method: 'POST',
         data: award
       }).then(res => {
@@ -371,7 +410,7 @@ Page({
     
     let index = e.currentTarget.dataset['index'];
     myRequest({
-      url: 'http://localhost:8090/master/deleteAward',
+      url: config.servPath +'/master/deleteAward',
       method: 'POST',
       data: this.data.activity.listAward[index]
     }).then(res => {
