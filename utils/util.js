@@ -25,7 +25,14 @@ const myShowModal=obj=>{
   });
  
 }
+const isPage = (name,page)=>{
+  let strs = page.route.split('/');
+  let pagename = strs[strs.length - 1];
+  console.log(pagename);
+  return pagename===name;
+}
 module.exports = {
   formatTime: formatTime,
-  myShowModal: myShowModal
+  myShowModal: myShowModal,
+  isPage: isPage
 }

@@ -1,6 +1,7 @@
 const myRequest = require('../../utils/request')
 const app=getApp();
 const config = require('../../utils/config')
+const isPage = require('../../utils/util').isPage
 
 Page({
   data: {
@@ -116,12 +117,13 @@ Page({
       app.setUserinfo(e.detail.userInfo);
   },
   onShow: function () {
-    wx.hideTabBarRedDot({ index: 1, fail: function () { console.log('fail') } });
+    wx.hideTabBarRedDot({ index: 1});
   },
   tapRow: function (e) {
     // 传递的参数
     let id = e.currentTarget.dataset['id'];
     console.log(id);
+    wx.navigateTo({ url: '../detail/detail?id=' + id})
   },
   attendActivity(activityId) {
     //先订阅，后发消息参加
@@ -145,6 +147,9 @@ Page({
     // if (!app.globalData.subscribe.joinAcvtity[this.data.activity.id]){
 
     // }
-    this.attendActivity('5319b7c0-5385-4545-84d6-eafd1dd8987');
+   // this.attendActivity('5319b7c0-5385-4545-84d6-eafd1dd8987');
+    if (isPage('attend',this)){
+      wx.showTabBarRedDot({ index: 0 });
+    }
   }
 })

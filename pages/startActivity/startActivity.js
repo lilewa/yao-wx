@@ -1,6 +1,7 @@
 const myRequest=require('../../utils/request')
 const app = getApp()
 const myShowModal = require('../../utils/util').myShowModal
+const isPage = require('../../utils/util').isPage
 const config = require('../../utils/config')
 
 Page({
@@ -80,13 +81,13 @@ Page({
           return;
       }
   
-      this.setData({ activity: res.data.entity });
-      this.subscribe();
       this.setData({
+        activity: res.data.entity,
         disableStartActivity: true,
         disableEndActivity: false,
         hasNoActivity: false
       });
+      this.subscribe();
     })
       .then(() => app.openSocket())
       .catch(res => wx.showToast({ title: res, icon: 'none'}));
@@ -134,6 +135,10 @@ Page({
         dang: 'haha'
       })
       //如果当前页不是此tab需要亮红点
+   
+      if(!isPage('startActivity',this)){
+        wx.showTabBarRedDot({ index: 0 });
+      }
     }
 
     //设置本页面收到通知的回调 抽奖结果的通知
@@ -172,7 +177,7 @@ Page({
     }
   },
   onShow: function () {
-    wx.hideTabBarRedDot({ index: 0, fail: function () { console.log('fail') } });
+    wx.hideTabBarRedDot({ index: 0});
   },
   getUserInfo: function(e) {
     if(e.detail.userInfo)

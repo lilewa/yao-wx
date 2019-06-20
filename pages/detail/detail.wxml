@@ -1,0 +1,64 @@
+
+<view>
+  
+
+  <view class="contont">
+    <view class="activity">
+      <view class="activity-item" bindtap="openToggle">
+        <view class="activity-hd">
+         <text>{{activity.name}}</text>    
+        </view>
+        <view class="activity-arrow {{activityOpen ? 'activity-item-hd-show' : ''}}"></view>
+      </view>
+      <view class="activity-detail weui-cells weui-cells_after-title {{activityOpen ? 'activity-item-bd-show' : ''}}">
+         <view class="weui-cell weui-cell_switch">
+          <view class="weui-cell__bd">本人参加</view>
+          <view class="weui-cell__ft">
+            <switch  checked="{{activity.joinme==='1'}}" disabled="true" />
+          </view>
+        </view>
+
+        <view class="weui-cell weui-cell_switch">
+          <view class="weui-cell__bd">重复参加</view>
+          <view class="weui-cell__ft">
+            <switch  checked="{{activity.repeats==='1'}}"  disabled="true"  />
+          </view>
+        </view>
+
+        <view class="weui-cell weui-cell_switch">
+          <view class="weui-cell__bd">创建时间</view>
+          <view class="weui-cell__ft">
+             <text>{{activity.createtime}}</text>
+          </view>
+        </view>
+
+        <view class="weui-cell weui-cell_switch">
+          <view class="weui-cell__bd">结束时间</view>
+          <view class="weui-cell__ft">
+             <text>{{activity.endtime}}</text>
+          </view>
+        </view> 
+      </view>
+    </view>
+ 
+    <view class="activity-award-list">
+       <view wx:for="{{activity.listAward}}" wx:key="id" class="award-box">
+          <view class="activity-item" data-index="{{index}}" bindtap="toggleAward">
+            <view class="activity-hd">
+            <text>{{item.name}}</text>
+            </view>
+            <view class="activity-arrow {{item.open ? 'activity-item-hd-show' : ''}}"></view>
+          </view>
+
+          <view class="weui-cells weui-cells_after-title activity-awardlist {{item.open ? 'activity-item-bd-show' : ''}}">
+            <view class="weui-cell" wx:for="{{item.listPlayer}}"  wx:for-item="player" wx:key="id">
+              {{player.playerName}}
+            </view>
+          </view>
+      </view>
+    </view>
+  </view>
+ 
+</view>
+
+

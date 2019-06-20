@@ -30,7 +30,9 @@ App({
     //logs.unshift(Date.now())
     //  wx.setStorageSync('logs', logs)
   },
- 
+  onHide:function(){
+   // this.globalData.stompClient.disconnect();
+  },
   globalData: {
     userInfo: null,
     stompClient:null,
@@ -118,9 +120,10 @@ App({
 
     // 关闭连接
     function close() {
-      if (this.globalData.socketConnected) {
+      console.log('diaoduan')
+      if (that.globalData.socketConnected) {
         wx.closeSocket()
-        this.globalData.socketConnected = false;
+        that.globalData.socketConnected = false;
       }
     }
     // 符合WebSocket定义的对象
@@ -134,7 +137,6 @@ App({
       wx.connectSocket({
         url: config.wsPath +'/messageServer',
         success: () => {
-          
           console.log('stomp connect');
           stompClient.connect({}, (callback)=> {
             that.wsSubscribe();
