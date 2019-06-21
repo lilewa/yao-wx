@@ -27,7 +27,7 @@ Page({
       repeats:'1',
       masterName:'',
       listAward:[],
-      
+      listActivityPlayer:[],
     },
     tmpActivity:{
       name: '', 
@@ -124,19 +124,19 @@ Page({
       if (data.activityPlayer.activityId!==this.data.activity.id){
         return
       }
-      // console.log(data); 
-      // activityId
-      // avatarUrl
-      // jointime
-      // playerId 
-      // playerName
-      
+      this.data.activity.listActivityPlayer.push({
+        activityId: data.activityPlayer.activityId,
+        avatarUrl: data.activityPlayer.avatarUrl,
+        jointime: data.activityPlayer.jointime,
+        playerId: data.activityPlayer.playerId,
+        playerName: data.activityPlayer.playerName,
+      });
+      console.log(data);
       this.setData({
-        dang: 'haha'
+        'activity.listActivityPlayer': this.data.activity.listActivityPlayer
       })
       //如果当前页不是此tab需要亮红点
-   
-      if(!isPage('startActivity',this)){
+      if(!isPage('startActivity')){
         wx.showTabBarRedDot({ index: 0 });
       }
     }

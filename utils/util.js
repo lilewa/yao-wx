@@ -25,8 +25,9 @@ const myShowModal=obj=>{
   });
  
 }
-const isPage = (name,page)=>{
-  let strs = page.route.split('/');
+const isPage = (name)=>{
+  let pages=getCurrentPages();
+  let strs = pages[pages.length - 1].route.split('/');
   let pagename = strs[strs.length - 1];
   console.log(pagename);
   return pagename===name;

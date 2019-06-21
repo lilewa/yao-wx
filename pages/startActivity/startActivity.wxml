@@ -100,9 +100,11 @@
     </view>
   </view>
 
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
-  </view>
+  <view class="activityPlayerBox">
+    <view class="imagebox" wx:for="{{activity.listActivityPlayer}}">
+      <image style='width:64rpx;height:64rpx' src="https://icon.zol-img.com.cn/ask/header/033.png" mode="cover"></image>
+    </view>
+   </view>
       
   <popup id="popup" title="增加奖项" bindconfirm="confirmAward" bindcancel="cancelAward">
       <view class="page-section-title">奖项名</view>

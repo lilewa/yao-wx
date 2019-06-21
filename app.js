@@ -81,6 +81,7 @@ App({
       delete this.globalData.subscribe.closeActivity[data.activityId];
       //console.log(this.globalData.subscribe);
      }
+    mes.ack();
   },
  setUserinfo(userInfo){
    this.globalData.userInfo = userInfo ;

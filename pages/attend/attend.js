@@ -70,7 +70,6 @@ Page({
         if (!app.globalData.subscribe.closeActivity[this.attendActivityList[i].id]) {
           app.globalData.subscribe.closeActivity[this.attendActivityList[i].id] = null;
         }
-        
       }
     }
     //websocket已经建立，需手动调用订阅
@@ -89,6 +88,9 @@ Page({
       this.setData({ 'attendActivityList': this.data.attendActivityList});
    
       //如果当前页不是此tab需要亮红点
+      if (isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
     }
 
     //设置本页面收到通知的回调 抽奖结果的通知
@@ -123,7 +125,7 @@ Page({
     // 传递的参数
     let id = e.currentTarget.dataset['id'];
     console.log(id);
-    wx.navigateTo({ url: '../detail/detail?id=' + id})
+    wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id})
   },
   attendActivity(activityId) {
     //先订阅，后发消息参加
@@ -148,8 +150,6 @@ Page({
 
     // }
    // this.attendActivity('5319b7c0-5385-4545-84d6-eafd1dd8987');
-    if (isPage('attend',this)){
-      wx.showTabBarRedDot({ index: 0 });
-    }
+   
   }
 })

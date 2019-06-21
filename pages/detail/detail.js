@@ -9,6 +9,7 @@ Page({
    */
   data: {
     activityOpen:true,
+    subs:false,
     activity: {
       id: '',
       name: '',
@@ -36,6 +37,11 @@ Page({
         this.setData({ activity: res.data.detail});
       }
     });
+    //需要订阅通知
+    if (options.action==='subs'){
+      this.data.subs=true;
+      subscribe();
+    }
   },
 
   /**
@@ -63,7 +69,9 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-
+    if(data.subs){
+      app.globalData.subscribe.startLucky.onReceiver.detailActivity = null;
+    }
   },
 
   /**
@@ -98,5 +106,29 @@ Page({
     let index = e.currentTarget.dataset['index'];
     let prop = 'activity.listAward[' + index + '].open';
     this.setData({ [prop]: !this.data.activity.listAward[index].open })
+  },
+
+  subscribe() {
+
+    //设置本页面收到通知的回调 抽奖结果的通知
+    app.globalData.subscribe.startLucky.onReceiver.detailActivity = (mes) => {
+      console.log(mes.body);
+      //判断是不是本人发起的活动，不是的话忽略
+      this.setData({
+        dang: 'haha'
+      }) 
+    }
+    // //设置本页面收到通知的回调 结束抽奖的通知
+    // app.globalData.subscribe.closeActivity.onReceiver.detailActivity = (mes) => {
+    //   let data = JSON.parse(mes.body);
+    //   console.log(mes.body);
+    //   if (data.code !== 0) {
+    //     return;
+    //   }
+    //   //判断是不是本人发起的活动，不是的话忽略
+    //   if (data.activityId !== this.data.activity.id) {
+    //     return
+    //   } 
+    // }
   },
 })
