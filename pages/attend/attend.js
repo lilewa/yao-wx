@@ -5,6 +5,7 @@ const isPage = require('../../utils/util').isPage
 
 Page({
   data: {
+    detailActivityId:'',
     logs: [],
     attendActivityList:[],
     dang:'dang',
@@ -84,34 +85,85 @@ Page({
       if (data.code !== 0) {
         return;
       }
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === data.activity.id){
+        if(app.globalData.joinme==='0'){
+          return;
+        }
+        if (app.globalData.isAdd){
+          return;
+        }else{
+          app.globalData.isAdd=true;
+        }
+      }
       this.data.attendActivityList.unshift(data.activity);
       this.setData({ 'attendActivityList': this.data.attendActivityList});
    
       //如果当前页不是此tab需要亮红点
-      if (isPage('attend')) {
+      if (!isPage('attend')) {
         wx.showTabBarRedDot({ index: 1 });
       }
     }
 
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.attend = (mes) => {
-      console.log(mes.body);
-      //判断是不是本人发起的活动，不是的话忽略
-      this.setData({
-        dang: 'haha'
-      })
+      
+      let data = JSON.parse(mes.body);
+      let activityId = data.listAwardPlayer[0].activityId;
+      //本人发起的活动，但本人不参加，返回
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId){
+        if(app.globalData.joinme==='0'){
+          return;
+        } 
+      }
+      //正在详情页浏览此活动，返回
+      if (this.data.detailActivityId !== activityId) {
+        return;
+      }
+      for (let i = 0; i < this.data.attendActivityList.length;i++){
+        if (this.data.attendActivityList[i].id === activityId){
+          this.data.attendActivityList[i].start = true;
+          let row = 'attendActivityList['+i+']';
+          this.setData({ [row]: this.data.attendActivityList[i] });
+          break;
+        }
+      }
+      
       //如果当前页不是此tab需要亮红点
-
+      if (!isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
     }
     //设置本页面收到通知的回调 结束抽奖的通知
     app.globalData.subscribe.closeActivity.onReceiver.attend = (mes) => {
-      console.log(mes.body);
-      //判断是不是本人发起的活动，不是的话忽略
-      this.setData({
-        dang: 'haole'
-      })
+      let data = JSON.parse(mes.body);
+      let activityId = data.activityId;
+      //本人发起的活动，但本人不参加，返回
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
+        if (app.globalData.joinme === '0') {
+          return;
+        }else{
+          app.globalData.holdActivityId = '';
+          app.globalData.isAdd = false;
+          app.globalData.joinme = '0';
+        }
+      }
+      //正在详情页浏览此活动，返回
+      if (this.data.detailActivityId !== activityId) {
+        return;
+      }
+      for (let i = 0; i < this.data.attendActivityList.length; i++) {
+        if (this.data.attendActivityList[i].id === activityId) {
+          this.data.attendActivityList[i].end = true;
+          let row = 'attendActivityList[' + i + ']';
+          this.setData({ [row]: this.data.attendActivityList[i] });
+          break;
+        }
+      }
+      
       //如果当前页不是此tab需要亮红点
-
+      if (!isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
     }
   },
   getUserInfo: function (e) {
@@ -120,10 +172,12 @@ Page({
   },
   onShow: function () {
     wx.hideTabBarRedDot({ index: 1});
+    this.data.detailActivityId='';
   },
   tapRow: function (e) {
     // 传递的参数
     let id = e.currentTarget.dataset['id'];
+    this.data.detailActivityId = id;
     console.log(id);
     wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id})
   },
@@ -150,6 +204,9 @@ Page({
 
     // }
    // this.attendActivity('5319b7c0-5385-4545-84d6-eafd1dd8987');
-   
+
+    this.data.attendActivityList[0].start = true;
+    this.data.attendActivityList[0].end=true;
+    this.setData({ 'attendActivityList[0]': this.data.attendActivityList[0]});
   }
 })

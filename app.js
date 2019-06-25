@@ -34,6 +34,9 @@ App({
    // this.globalData.stompClient.disconnect();
   },
   globalData: {
+    holdActivityId:'',
+    isAdd:false,
+    joinme:'0',
     userInfo: null,
     stompClient:null,
     socketConnected:false,

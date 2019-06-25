@@ -40,7 +40,7 @@ Page({
     //需要订阅通知
     if (options.action==='subs'){
       this.data.subs=true;
-      subscribe();
+      this.subscribe();
     }
   },
 
@@ -69,7 +69,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    if(data.subs){
+    if(this.data.subs){
       app.globalData.subscribe.startLucky.onReceiver.detailActivity = null;
     }
   },
@@ -113,10 +113,19 @@ Page({
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.detailActivity = (mes) => {
       console.log(mes.body);
-      //判断是不是本人发起的活动，不是的话忽略
-      this.setData({
-        dang: 'haha'
-      }) 
+      let data = JSON.parse(mes.body);
+      let activityId = data.listAwardPlayer[0].activityId;
+      let awardId = data.listAwardPlayer[0].awardId;
+   
+      for (let i = 0; i < this.data.activity.listAward.length; i++) {
+        if (this.data.activity.listAward[i].awardId === awardId) {
+          this.data.activity.listAward[i].listPlayer = data.listAwardPlayer;
+          let row = 'activity.listAward[' + i + ']';
+          this.setData({ row: this.data.activity.listAward[i] });
+          break;
+        }
+      }
+     
     }
     // //设置本页面收到通知的回调 结束抽奖的通知
     // app.globalData.subscribe.closeActivity.onReceiver.detailActivity = (mes) => {

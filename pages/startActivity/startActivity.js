@@ -80,7 +80,9 @@ Page({
                 });
           return;
       }
-  
+      app.globalData.holdActivityId =res.data.entity.id;
+      app.globalData.joinme = res.data.entity.joinme;
+      app.globalData.isAdd=true;
       this.setData({
         activity: res.data.entity,
         disableStartActivity: true,
@@ -143,12 +145,27 @@ Page({
 
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
-      console.log(mes.body);
-      //判断是不是本人发起的活动，不是的话忽略
-      this.setData({
-        dang: 'haha'
-      })
-      //如果当前页不是此tab需要亮红点
+
+      let data = JSON.parse(mes.body);
+      let activityId = data.listAwardPlayer[0].activityId;
+      let awardId = data.listAwardPlayer[0].awardId;
+      //不是自己发起的活动，返回
+      if (this.data.activity.id !== activityId) {
+        return;
+      }
+      for(let i=0;i<this.data.activity.listAward.length;i++){
+        if (this.data.activity.listAward[i].awardId === awardId){
+          this.data.activity.listAward[i].state='1';
+          this.data.activity.listAward[i].listPlayer = data.listAwardPlayer;
+          let row = 'activity.listAward['+i+']';
+          this.setData({ row: this.data.activity.listAward[i]});
+          break;
+        }
+      }
+       //如果当前页不是此tab需要亮红点
+      if (!isPage('startActivity')) {
+        wx.showTabBarRedDot({ index: 0 });
+      }
 
     }
     //设置本页面收到通知的回调 结束抽奖的通知
@@ -159,7 +176,6 @@ Page({
         return;
       }
       //判断是不是本人发起的活动，不是的话忽略
-
       if (data.activityId !== this.data.activity.id) {
         return
       }
@@ -173,7 +189,12 @@ Page({
           repeats: '1',
           masterName: '',
           listAward: []},
-      })
+      });
+      if (app.globalData.joinme==='0'){
+        app.globalData.holdActivityId = '';
+        app.globalData.isAdd = false;
+        app.globalData.joinme = '0';
+      }
     }
   },
   onShow: function () {
@@ -272,6 +293,9 @@ Page({
           isNew: false,
           hasNoActivity: false
         });
+        app.globalData.holdActivityId = data.activity.id;
+        app.globalData.isAdd=false;
+        app.globalData.joinme = data.activity.joinme;
         //参加活动的通知,添加需要订阅的id
         app.globalData.subscribe.joinAcvtity[this.data.activity.id] =null; 
         //结束活动的通知,添加需要订阅的id

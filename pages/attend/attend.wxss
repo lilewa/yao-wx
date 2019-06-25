@@ -30,6 +30,12 @@
 .table > .tr:focus{
   background:green;
 }
+.table > .tr.bg-g.start{
+  background: green;
+}
+.table > .tr.bg-g.end{
+  background: red;
+}
 .tr .td:nth-child(1),.tr .th:nth-child(1){
    /* flex: 1 0 60rpx; */
   width:10%;
