@@ -120,7 +120,7 @@
 
   </popup>
 
-  <button bindtap='fa' bindtap='dang'>{{dang}}</button>
+  <button bindtap='fa' bindtap='dang'>test</button>
 </view>
 
 

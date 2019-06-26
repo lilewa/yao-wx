@@ -6,7 +6,6 @@ const config = require('../../utils/config')
 
 Page({
   data: {
-    dang:'niu',
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
@@ -189,6 +188,11 @@ Page({
           repeats: '0',
           masterName: '',
           listAward: []},
+        disableEndActivity: true,
+        hasNoActivity: true,
+        activityOpen: false,
+        isEdit: false,
+        isNew: false,
       });
       if (app.globalData.joinme==='0'){
         app.globalData.holdActivityId = '';
@@ -299,7 +303,8 @@ Page({
           'activity.id': res.data.id,
           isEdit:false,
           isNew: false,
-          hasNoActivity: false
+          hasNoActivity: false,
+          disableEndActivity: false,
         });
         app.globalData.holdActivityId = this.data.activity.id;
         app.globalData.isAdd=false;

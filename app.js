@@ -204,8 +204,6 @@ App({
       }
     })
   },
-  dang(){
-    console.log('socketConnected:' + this.globalData.socketConnected);
-  }
+ 
   
 })
