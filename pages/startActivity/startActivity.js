@@ -24,15 +24,15 @@ Page({
       createtime:'',
       state:'',
       joinme:'0',
-      repeats:'1',
+      repeats:'0',
       masterName:'',
       listAward:[],
       listActivityPlayer:[],
     },
     tmpActivity:{
       name: '', 
-      joinme: false,
-      repeats: false
+      joinme: '0',
+      repeats: '0'
     }
   },
   // //事件处理函数
@@ -186,7 +186,7 @@ Page({
           createtime: '',
           state: '',
           joinme: '0',
-          repeats: '1',
+          repeats: '0',
           masterName: '',
           listAward: []},
       });
@@ -269,6 +269,10 @@ Page({
   },
   //发起活动保存
   activitySave(){
+    if (!this.data.activity.name){
+      wx.showToast({ title: '未输入活动名称', icon: 'none' });
+      return;
+    }
     let method=null;
     let notify=null;
     if(this.data.isNew){
@@ -285,6 +289,10 @@ Page({
       data:this.data.activity
     }).then(res => {
       console.log(res);
+      if (!res.data.msg){
+        wx.showToast({ title: '系统错误',icon: 'none'});
+        return;
+      }
       if (this.data.isNew) {
         //this.data.activity.id = res.data.id;
         this.setData({
@@ -293,9 +301,9 @@ Page({
           isNew: false,
           hasNoActivity: false
         });
-        app.globalData.holdActivityId = data.activity.id;
+        app.globalData.holdActivityId = this.data.activity.id;
         app.globalData.isAdd=false;
-        app.globalData.joinme = data.activity.joinme;
+        app.globalData.joinme = this.data.activity.joinme;
         //参加活动的通知,添加需要订阅的id
         app.globalData.subscribe.joinAcvtity[this.data.activity.id] =null; 
         //结束活动的通知,添加需要订阅的id
@@ -307,7 +315,6 @@ Page({
           app.wsSubscribe();
         }
         if (this.data.activity.joinme==='1'){
-
           let activityPlayer = {
             activityId: this.data.activity.id,
             playerName: this.data.userInfo.nickName,

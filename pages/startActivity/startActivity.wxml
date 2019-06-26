@@ -50,14 +50,14 @@
         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">创建时间</view>
           <view class="weui-cell__ft">
-             <text>{{activity.repeats==='1'}}</text>
+             <text>{{activity.createtime}}</text>
           </view>
         </view>
 
         <view class="weui-cell weui-cell_switch">
           <view class="weui-cell__bd">结束时间</view>
           <view class="weui-cell__ft">
-             <text>jidfsd</text>
+             <text>{{activity.endtime}}</text>
           </view>
         </view>
 

@@ -21,7 +21,7 @@ module.exports = function (obj){
     } else {
       obj.header = { cookie: app.globalData.sessionId }
     }
-    console.log(obj) ;
+    //console.log(obj) ;
     wx.request(obj);
   }).then(
     res=>{
