@@ -5,11 +5,14 @@
     <button class='getUserInfoBtn' wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo"    bindgetuserinfo="getUserInfo"> 获取头像 </button>
     <view wx:else class="userinfo-avatar-container">
       <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+      <view class="userinfo-nickname">{{userInfo.nickName}}</view>
     </view>
   </view>
 
-  <view class="start-btn"></view>
+  <view class="scanImg">
+     <image style='width:40px;height:40px' src="../../resource/scan.png" mode="cover"
+      bindtap='scanCode'></image>
+  </view>
   <view class="end-btn"></view>
 
 </view>

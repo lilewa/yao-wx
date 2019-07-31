@@ -40,6 +40,19 @@ Page({
   //     url: '../logs/logs'
   //   })
   // },
+  view2DCodeTap(){
+    wx.previewImage({
+      current: '', // 当前显示图片的http链接
+      urls: ['http://182.61.50.233/pic/idea.png'] // 需要预览的图片http链接列表
+    })
+  },
+  onShareAppMessage() {
+    return {
+      title: '发奖了，手慢无',
+      path: '/pages/attend/attend?scene ='+this.data.activity.id,
+      imageUrl: '/image/share.jpg',
+    }
+  },
   onLoad: function () {
     console.log(config.servPath);
     //获取页面弹出框

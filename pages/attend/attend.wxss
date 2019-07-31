@@ -73,11 +73,14 @@
   padding: 0 15rpx;
 }
 .userinfo {
-  flex:1 1 0;
+ 
+  justify-content:flex-start;
 }
-.start-btn ,.end-btn{
-  flex:1 1 0;
-  padding: 0 10rpx;
+.scanImg{
+  display: flex;
+  flex:1;
+  align-items: center;
+  justify-content:flex-end;
 }
 
 .getUserInfoBtn{

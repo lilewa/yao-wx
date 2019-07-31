@@ -26,9 +26,10 @@ Page({
     //     return util.formatTime(new Date(log))
     //   })
     // })
+    
     const scene= decodeURIComponent(query.scene)
     console.log(scene);
-    if (app.globalData.userInfo) {
+     if (app.globalData.userInfo) {
       this.setData({
         userInfo: app.globalData.userInfo,
         hasUserInfo: true
@@ -42,24 +43,31 @@ Page({
       })
     }
     
-    let that =this;
-    app.globalData.subscribe.startLucky.onReceiver.attend=function(mes){
-      console.log(mes);
-      that.dang = 'haha';
-      that.setData({
-        dang: 'haha'
-      })
-    }
+    // let that =this;
+    // app.globalData.subscribe.startLucky.onReceiver.attend=function(mes){
+    //   console.log(mes);
+    //   that.dang = 'haha';
+    //   that.setData({
+    //     dang: 'haha'
+    //   })
+    // }
     myRequest({
       url: config.servPath +'/master/attendActivityList',
       method:'POST'
       })
       .then((res)=>{
-        console.log(res.data);
+       // console.log(res.data);
+        if (!res.data.msg || res.data.code !== 0) {
+          return Promise.reject(res.data.msg);
+        }
         this.attendActivityList=res.data.list;
         this.setData({attendActivityList: res.data.list});
         this.subscribe();
-      })
+      }).then(()=>{ 
+        if (scene){
+        //  this.attendActivity(scene);
+        } 
+      }).catch(res => wx.showToast({ title: res, icon: 'none' }));
   },
   subscribe(){
     
@@ -197,6 +205,45 @@ Page({
       avatarUrl: this.data.userInfo.avatarUrl
     };
     app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
+  },
+  attendActivity(activityId){
+    for (let i = 0; i < this.data.attendActivityList.length; i++) {
+      if (this.data.attendActivityList[i].id == activityId) {
+        wx.showToast({ title: '已经参加过这次活动', icon: 'none' });
+        return;
+      }
+    }
+    if (!app.globalData.subscribe.joinAcvtity[activityId]) {
+      //参加活动的通知,添加需要订阅的id
+      app.globalData.subscribe.joinAcvtity[activityId] = null;
+      //结束活动的通知,添加需要订阅的id
+      app.globalData.subscribe.closeActivity[activityId] = null;
+      //活动抽奖的通知,添加需要订阅的id
+      app.globalData.subscribe.startLucky[activityId] = null;
+    }
+
+    //订阅
+    if (app.globalData.socketConnected) {
+      app.wsSubscribe();
+    }
+
+    let activityPlayer = {
+      activityId: activityId,
+      playerName: this.data.userInfo.nickName,
+      avatarUrl: this.data.userInfo.avatarUrl
+    };
+    app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
+  },
+  scanCode(){
+    const that = this
+    wx.scanCode({
+      success(res) {
+        console.log(res.result);
+        let scanId='';
+        this.attendActivity(scanId);
+      },
+      fail() { }
+    });
   },
   dang() {
     // if (this.data.attendActivityList.find)

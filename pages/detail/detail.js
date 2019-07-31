@@ -92,7 +92,11 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
-
+    return {
+      title: '来玩啦！靓仔',
+      path: '/pages/attend/attend?scene='+this.data.activity.id,
+      imageUrl: '/image/share.jpg',
+    }
   },
 
   openToggle() {
