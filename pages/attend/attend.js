@@ -8,7 +8,6 @@ Page({
     detailActivityId:'',
     logs: [],
     attendActivityList:[],
-    dang:'dang',
     userInfo: {},
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     hasUserInfo: false,
@@ -27,7 +26,8 @@ Page({
     //   })
     // })
     
-    const scene= decodeURIComponent(query.scene)
+    const scene= decodeURIComponent(query.scene);
+    //const scene = query.scene;
     console.log(scene);
      if (app.globalData.userInfo) {
       this.setData({
@@ -51,6 +51,7 @@ Page({
     //     dang: 'haha'
     //   })
     // }
+    this.setReceiver();
     myRequest({
       url: config.servPath +'/master/attendActivityList',
       method:'POST'
@@ -65,9 +66,104 @@ Page({
         this.subscribe();
       }).then(()=>{ 
         if (scene){
-        //  this.attendActivity(scene);
+          if (app.globalData.userInfo){
+            this.attendActivity(scene);
+          }else{
+            app.globalData.subscribeUserInfo.push((userInfo) => {
+              this.attendActivity(scene);
+            })
+          }
+          
         } 
-      }).catch(res => wx.showToast({ title: res, icon: 'none' }));
+      }).catch(res => wx.showToast({ title: res.errMsg, icon: 'none' }));
+  },
+  setReceiver(){
+    //设置本页面收到通知的回调 参加活动的通知
+    app.globalData.subscribe.joinAcvtity.onReceiver.attend = (mes) => {
+      let data = JSON.parse(mes.body);
+      if (data.code !== 0) {
+        return;
+      }
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === data.activity.id) {
+        if (app.globalData.joinme === '0') {
+          return;
+        }
+        if (app.globalData.isAdd) {
+          return;
+        } else {
+          app.globalData.isAdd = true;
+        }
+      }
+      this.data.attendActivityList.unshift(data.activity);
+      this.setData({ 'attendActivityList': this.data.attendActivityList });
+
+      //如果当前页不是此tab需要亮红点
+      if (!isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
+    }
+
+    //设置本页面收到通知的回调 抽奖结果的通知
+    app.globalData.subscribe.startLucky.onReceiver.attend = (mes) => {
+
+      let data = JSON.parse(mes.body);
+      let activityId = data.listAwardPlayer[0].activityId;
+      //本人发起的活动，但本人不参加，返回
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
+        if (app.globalData.joinme === '0') {
+          return;
+        }
+      }
+      //正在详情页浏览此活动，返回
+      if (this.data.detailActivityId !== activityId) {
+        return;
+      }
+      for (let i = 0; i < this.data.attendActivityList.length; i++) {
+        if (this.data.attendActivityList[i].id === activityId) {
+          this.data.attendActivityList[i].start = true;
+          let row = 'attendActivityList[' + i + ']';
+          this.setData({ [row]: this.data.attendActivityList[i] });
+          break;
+        }
+      }
+
+      //如果当前页不是此tab需要亮红点
+      if (!isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
+    }
+    //设置本页面收到通知的回调 结束抽奖的通知
+    app.globalData.subscribe.closeActivity.onReceiver.attend = (mes) => {
+      let data = JSON.parse(mes.body);
+      let activityId = data.activityId;
+      //本人发起的活动，但本人不参加，返回
+      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
+        if (app.globalData.joinme === '0') {
+          return;
+        } else {
+          app.globalData.holdActivityId = '';
+          app.globalData.isAdd = false;
+          app.globalData.joinme = '0';
+        }
+      }
+      //正在详情页浏览此活动，返回
+      if (this.data.detailActivityId !== activityId) {
+        return;
+      }
+      for (let i = 0; i < this.data.attendActivityList.length; i++) {
+        if (this.data.attendActivityList[i].id === activityId) {
+          this.data.attendActivityList[i].end = true;
+          let row = 'attendActivityList[' + i + ']';
+          this.setData({ [row]: this.data.attendActivityList[i] });
+          break;
+        }
+      }
+
+      //如果当前页不是此tab需要亮红点
+      if (!isPage('attend')) {
+        wx.showTabBarRedDot({ index: 1 });
+      }
+    }
   },
   subscribe(){
     
@@ -87,92 +183,7 @@ Page({
       console.log('atten');
       app.wsSubscribe();
     }
-    //设置本页面收到通知的回调 参加活动的通知
-    app.globalData.subscribe.joinAcvtity.onReceiver.attend = (mes) => {
-      let data = JSON.parse(mes.body);
-      if (data.code !== 0) {
-        return;
-      }
-      if (app.globalData.holdActivityId && app.globalData.holdActivityId === data.activity.id){
-        if(app.globalData.joinme==='0'){
-          return;
-        }
-        if (app.globalData.isAdd){
-          return;
-        }else{
-          app.globalData.isAdd=true;
-        }
-      }
-      this.data.attendActivityList.unshift(data.activity);
-      this.setData({ 'attendActivityList': this.data.attendActivityList});
-   
-      //如果当前页不是此tab需要亮红点
-      if (!isPage('attend')) {
-        wx.showTabBarRedDot({ index: 1 });
-      }
-    }
-
-    //设置本页面收到通知的回调 抽奖结果的通知
-    app.globalData.subscribe.startLucky.onReceiver.attend = (mes) => {
-      
-      let data = JSON.parse(mes.body);
-      let activityId = data.listAwardPlayer[0].activityId;
-      //本人发起的活动，但本人不参加，返回
-      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId){
-        if(app.globalData.joinme==='0'){
-          return;
-        } 
-      }
-      //正在详情页浏览此活动，返回
-      if (this.data.detailActivityId !== activityId) {
-        return;
-      }
-      for (let i = 0; i < this.data.attendActivityList.length;i++){
-        if (this.data.attendActivityList[i].id === activityId){
-          this.data.attendActivityList[i].start = true;
-          let row = 'attendActivityList['+i+']';
-          this.setData({ [row]: this.data.attendActivityList[i] });
-          break;
-        }
-      }
-      
-      //如果当前页不是此tab需要亮红点
-      if (!isPage('attend')) {
-        wx.showTabBarRedDot({ index: 1 });
-      }
-    }
-    //设置本页面收到通知的回调 结束抽奖的通知
-    app.globalData.subscribe.closeActivity.onReceiver.attend = (mes) => {
-      let data = JSON.parse(mes.body);
-      let activityId = data.activityId;
-      //本人发起的活动，但本人不参加，返回
-      if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
-        if (app.globalData.joinme === '0') {
-          return;
-        }else{
-          app.globalData.holdActivityId = '';
-          app.globalData.isAdd = false;
-          app.globalData.joinme = '0';
-        }
-      }
-      //正在详情页浏览此活动，返回
-      if (this.data.detailActivityId !== activityId) {
-        return;
-      }
-      for (let i = 0; i < this.data.attendActivityList.length; i++) {
-        if (this.data.attendActivityList[i].id === activityId) {
-          this.data.attendActivityList[i].end = true;
-          let row = 'attendActivityList[' + i + ']';
-          this.setData({ [row]: this.data.attendActivityList[i] });
-          break;
-        }
-      }
-      
-      //如果当前页不是此tab需要亮红点
-      if (!isPage('attend')) {
-        wx.showTabBarRedDot({ index: 1 });
-      }
-    }
+ 
   },
   getUserInfo: function (e) {
     if (e.detail.userInfo)
@@ -189,30 +200,33 @@ Page({
     console.log(id);
     wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id})
   },
-  attendActivity(activityId) {
-    //先订阅，后发消息参加
-    if (!app.globalData.subscribe.joinAcvtity[activityId]){
-      console.log('mei')
-      app.globalData.subscribe.joinAcvtity[activityId] =
-        app.globalData.stompClient.subscribe('/sub/joinAcvtity/' + activityId,
-        (mes) => { app.dispatch(mes, app.globalData.subscribe.joinAcvtity.onReceiver) }
-        );
-    }
+  // attendActivity(activityId) {
+  //   console.log('asd');
+  //   //先订阅，后发消息参加
+  //   if (!app.globalData.subscribe.joinAcvtity[activityId]){
+  //     console.log('mei')
+  //     app.globalData.subscribe.joinAcvtity[activityId] =
+  //       app.globalData.stompClient.subscribe('/sub/joinAcvtity/' + activityId,
+  //       (mes) => { app.dispatch(mes, app.globalData.subscribe.joinAcvtity.onReceiver) }
+  //       );
+  //   }
    
-    let activityPlayer = {
-      activityId: activityId,
-      playerName: this.data.userInfo.nickName,
-      avatarUrl: this.data.userInfo.avatarUrl
-    };
-    app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
-  },
+  //   let activityPlayer = {
+  //     activityId: activityId,
+  //     playerName: this.data.userInfo.nickName,
+  //     avatarUrl: this.data.userInfo.avatarUrl
+  //   };
+  //   app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
+  // },
   attendActivity(activityId){
+
     for (let i = 0; i < this.data.attendActivityList.length; i++) {
       if (this.data.attendActivityList[i].id == activityId) {
         wx.showToast({ title: '已经参加过这次活动', icon: 'none' });
         return;
       }
     }
+    
     if (!app.globalData.subscribe.joinAcvtity[activityId]) {
       //参加活动的通知,添加需要订阅的id
       app.globalData.subscribe.joinAcvtity[activityId] = null;
@@ -220,18 +234,18 @@ Page({
       app.globalData.subscribe.closeActivity[activityId] = null;
       //活动抽奖的通知,添加需要订阅的id
       app.globalData.subscribe.startLucky[activityId] = null;
-    }
+    } 
 
     //订阅
     if (app.globalData.socketConnected) {
       app.wsSubscribe();
     }
-
     let activityPlayer = {
       activityId: activityId,
       playerName: this.data.userInfo.nickName,
       avatarUrl: this.data.userInfo.avatarUrl
     };
+    console.log(activityPlayer);
     app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
   },
   scanCode(){

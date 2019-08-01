@@ -33,12 +33,16 @@ module.exports = function (obj){
         return new Promise((resolve, reject) => {
           //{errMsg: "login:ok", code: "0614Drl70nsnRE1Yp7n709dtl704Drlh"}
           console.log('获取 code');
-          wx.login({success: res => {resolve(res.code)}})
+          wx.login({ success: res => { resolve(res.code) }, fail: res => { console.log(res); reject(res.errMsg)}})
           // 发送 res.code 到后台换取 openId, sessionKey, unionId
         })
         .then(code=>{ 
           console.log('使用code重发请求');
-          obj.url+='?code='+code;
+          if (obj.url.indexOf('?')>-1){
+            obj.url += '&code=' + code;
+          }else{
+            obj.url += '?code=' + code;
+          } 
           return new Promise((resolve, reject) => {
             obj.success = function (res) {
               resolve(res);

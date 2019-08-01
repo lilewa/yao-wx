@@ -25,13 +25,13 @@
   <view class="th ">结束时间</view>
 </view>
 <block wx:for="{{attendActivityList}}" wx:key="id"  wx:for-item="item">
-<view class="tr bg-g {{item.start?'start':''}} {{item.end?'end':''}}" data-id="{{item.id}}" bindtap='tapRow'>
-  <view class="td">{{index+1}}</view>
-  <view class="td">{{item.name}}</view>
-  <view class="td">{{item.masterName}}</view>
-  <view class="td">{{item.createtime}}</view>
-  <view class="td">{{item.endtime}}</view>
-</view>
+  <view class="tr bg-g {{item.start?'start':''}} {{item.end?'end':''}}" data-id="{{item.id}}" bindtap='tapRow'>
+    <view class="td">{{index+1}}</view>
+    <view class="td">{{item.name}}</view>
+    <view class="td">{{item.masterName}}</view>
+    <view class="td">{{item.createtime}}</view>
+    <view class="td">{{item.endtime}}</view>
+  </view>
 </block>
 </view>
 

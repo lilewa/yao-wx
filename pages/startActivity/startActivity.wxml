@@ -11,7 +11,7 @@
     </view>
 
     <view class="start-btn">
-        <button  type="primary" wx:if="{{!hasNoActivity}}" disabled="{{disableStartActivity||!hasUserInfo}}" bindtap="bindStartTap">发起  </button>
+        <button  type="primary" wx:if="{{hasNoActivity}}" disabled="{{disableStartActivity||!hasUserInfo}}" bindtap="bindStartTap">发起  </button>
         <!-- 显示活动的二维码 -->
         <view wx:else class="userinfo-avatar-container">
           <image bindtap="view2DCodeTap" style="width:128rpx;height:128rpx" src="../../resource/2Dcode.png" mode="cover"></image>
@@ -101,7 +101,7 @@
     </view>
   </view>
 
-  <view class="activityPlayerBox">
+  <view class="activityPlayerBox" wx:if="{{!hasNoActivity}}">
     <view class="imagebox" wx:for="{{activity.listActivityPlayer}}">
       <image style='width:64rpx;height:64rpx' src="https://icon.zol-img.com.cn/ask/header/033.png" mode="cover"></image>
     </view>
@@ -121,7 +121,6 @@
 
   </popup>
 
-  <button bindtap='fa' bindtap='dang'>test</button>
 </view>
 
 

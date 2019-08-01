@@ -47,7 +47,7 @@
 					"id": 0,
 					"name": "扫码进入",
 					"pathName": "pages/attend/attend",
-					"query": "scene=activityId",
+					"query": "scene=92baa825-d1ac-4f2b-81cf-4ad79175a8d4",
 					"scene": 1047
 				}
 			]

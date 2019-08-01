@@ -41,10 +41,18 @@ Page({
   //   })
   // },
   view2DCodeTap(){
-    wx.previewImage({
-      current: '', // 当前显示图片的http链接
-      urls: ['http://182.61.50.233/pic/idea.png'] // 需要预览的图片http链接列表
-    })
+
+    // myRequest({
+    //   url: config.servPath + '/master/wxacode?id='+this.data.activity.id
+    // }).then(res => {
+    //   //console.log(res);
+    //   if (res.data.msg ==='success'){
+    //     wx.previewImage({   current: '', // 当前显示图片的http链接
+    //       urls: [res.data.imgPath] // 需要预览的图片http链接列表
+    //     })
+    //   }
+    //   });
+   
   },
   onShareAppMessage() {
     return {
@@ -54,7 +62,7 @@ Page({
     }
   },
   onLoad: function () {
-    console.log(config.servPath);
+
     //获取页面弹出框
     this.data.popup=this.selectComponent('#popup');
     
@@ -73,6 +81,8 @@ Page({
       })
     }
     
+    this.setReceiver();
+
     myRequest({
       url: config.servPath+'/master/doingActivity',
       method: 'POST'
@@ -103,12 +113,98 @@ Page({
       });
       this.subscribe();
     })
-      .then(() => app.openSocket())
       .catch(res => wx.showToast({ title: res, icon: 'none'}));
    
 
   },    
-  
+  setReceiver(){
+    //设置本页面收到通知的回调 参加活动的通知
+    app.globalData.subscribe.joinAcvtity.onReceiver.startActivity = (mes) => {
+      let data = JSON.parse(mes.body);
+      //判断是不是本人发起的活动，不是的话忽略
+      if (data.code !== 0) {
+        return;
+      }
+      if (data.activityPlayer.activityId !== this.data.activity.id) {
+        return
+      }
+      this.data.activity.listActivityPlayer.push({
+        activityId: data.activityPlayer.activityId,
+        avatarUrl: data.activityPlayer.avatarUrl,
+        jointime: data.activityPlayer.jointime,
+        playerId: data.activityPlayer.playerId,
+        playerName: data.activityPlayer.playerName,
+      });
+      console.log(data);
+      this.setData({
+        'activity.listActivityPlayer': this.data.activity.listActivityPlayer
+      })
+      //如果当前页不是此tab需要亮红点
+      if (!isPage('startActivity')) {
+        wx.showTabBarRedDot({ index: 0 });
+      }
+    }
+    //设置本页面收到通知的回调 抽奖结果的通知
+    app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
+
+      let data = JSON.parse(mes.body);
+      let activityId = data.listAwardPlayer[0].activityId;
+      let awardId = data.listAwardPlayer[0].awardId;
+      //不是自己发起的活动，返回
+      if (this.data.activity.id !== activityId) {
+        return;
+      }
+      for (let i = 0; i < this.data.activity.listAward.length; i++) {
+        if (this.data.activity.listAward[i].awardId === awardId) {
+          this.data.activity.listAward[i].state = '1';
+          this.data.activity.listAward[i].listPlayer = data.listAwardPlayer;
+          let row = 'activity.listAward[' + i + ']';
+          this.setData({ row: this.data.activity.listAward[i] });
+          break;
+        }
+      }
+      //如果当前页不是此tab需要亮红点
+      if (!isPage('startActivity')) {
+        wx.showTabBarRedDot({ index: 0 });
+      }
+
+    }
+    //设置本页面收到通知的回调 结束抽奖的通知
+    app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
+      let data = JSON.parse(mes.body); console.log('收到结束');
+      console.log(mes.body);
+      if (data.code !== 0) {
+        return;
+      }
+      //判断是不是本人发起的活动，不是的话忽略
+      if (data.activityId !== this.data.activity.id) {
+        return
+      }
+      this.setData({
+        activity: {
+          id: '',
+          name: '',
+          createtime: '',
+          state: '',
+          joinme: '0',
+          repeats: '0',
+          masterName: '',
+          listAward: []
+        },
+        disableEndActivity: true,
+        disableStartActivity:false,
+        hasNoActivity: true,
+        activityOpen: false,
+        isEdit: false,
+        isNew: false,
+      });
+      if (app.globalData.joinme === '0') {
+        app.globalData.holdActivityId = '';
+        app.globalData.isAdd = false;
+        app.globalData.joinme = '0';
+      }
+    }
+  },
   subscribe(){
 
     //没在其他页面订阅过，添加需要订阅的id
@@ -126,93 +222,7 @@ Page({
     console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
     if (app.globalData.socketConnected) {
       app.wsSubscribe();
-    }
-
-    //设置本页面收到通知的回调 参加活动的通知
-    app.globalData.subscribe.joinAcvtity.onReceiver.startActivity = (mes) => {
-      let data =JSON.parse(mes.body);
-      //判断是不是本人发起的活动，不是的话忽略
-      if(data.code!==0){
-        return ;
-      }
-      if (data.activityPlayer.activityId!==this.data.activity.id){
-        return
-      }
-      this.data.activity.listActivityPlayer.push({
-        activityId: data.activityPlayer.activityId,
-        avatarUrl: data.activityPlayer.avatarUrl,
-        jointime: data.activityPlayer.jointime,
-        playerId: data.activityPlayer.playerId,
-        playerName: data.activityPlayer.playerName,
-      });
-      console.log(data);
-      this.setData({
-        'activity.listActivityPlayer': this.data.activity.listActivityPlayer
-      })
-      //如果当前页不是此tab需要亮红点
-      if(!isPage('startActivity')){
-        wx.showTabBarRedDot({ index: 0 });
-      }
-    }
-
-    //设置本页面收到通知的回调 抽奖结果的通知
-    app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
-
-      let data = JSON.parse(mes.body);
-      let activityId = data.listAwardPlayer[0].activityId;
-      let awardId = data.listAwardPlayer[0].awardId;
-      //不是自己发起的活动，返回
-      if (this.data.activity.id !== activityId) {
-        return;
-      }
-      for(let i=0;i<this.data.activity.listAward.length;i++){
-        if (this.data.activity.listAward[i].awardId === awardId){
-          this.data.activity.listAward[i].state='1';
-          this.data.activity.listAward[i].listPlayer = data.listAwardPlayer;
-          let row = 'activity.listAward['+i+']';
-          this.setData({ row: this.data.activity.listAward[i]});
-          break;
-        }
-      }
-       //如果当前页不是此tab需要亮红点
-      if (!isPage('startActivity')) {
-        wx.showTabBarRedDot({ index: 0 });
-      }
-
-    }
-    //设置本页面收到通知的回调 结束抽奖的通知
-    app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
-      let data = JSON.parse(mes.body);   
-      console.log(mes.body)   ;
-      if (data.code !== 0) {
-        return;
-      }
-      //判断是不是本人发起的活动，不是的话忽略
-      if (data.activityId !== this.data.activity.id) {
-        return
-      }
-      this.setData({
-        activity:{
-          id: '',
-          name: '',
-          createtime: '',
-          state: '',
-          joinme: '0',
-          repeats: '0',
-          masterName: '',
-          listAward: []},
-        disableEndActivity: true,
-        hasNoActivity: true,
-        activityOpen: false,
-        isEdit: false,
-        isNew: false,
-      });
-      if (app.globalData.joinme==='0'){
-        app.globalData.holdActivityId = '';
-        app.globalData.isAdd = false;
-        app.globalData.joinme = '0';
-      }
-    }
+    } 
   },
   onShow: function () {
     wx.hideTabBarRedDot({ index: 0});
@@ -481,11 +491,4 @@ Page({
     });
   },
  
-  dang() {
-    //console.log(this.data.userInfo);
-    wx.previewImage({
-      current: '', // 当前显示图片的http链接
-      urls: ['http://182.61.50.233/pic/idea.png'] // 需要预览的图片http链接列表
-    })
-  },
 })

@@ -3,4 +3,5 @@ module.exports={
   // wsPath: 'wss://www.qiuqiuni.cn/yao',
   servPath: 'http://localhost:8090/yao',
   wsPath: 'ws://localhost:8090/yao',
+  // imgPath:'https://www.qiuqiuni.cn/img/',
 }
