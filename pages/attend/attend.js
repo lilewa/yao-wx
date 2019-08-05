@@ -137,11 +137,12 @@ Page({
       if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
         if (app.globalData.joinme === '0') {
           return;
-        } else {
-          app.globalData.holdActivityId = '';
-          app.globalData.isAdd = false;
-          app.globalData.joinme = '0';
-        }
+        } 
+        // else {
+        //   app.globalData.holdActivityId = '';
+        //   app.globalData.isAdd = false;
+        //   app.globalData.joinme = '0';
+        // }
       }
       app.globalData.activityNum--;
 
@@ -204,10 +205,14 @@ Page({
     // 传递的参数
     let id = e.currentTarget.dataset['id'];
     let index = e.currentTarget.dataset['index'];
-
+   
     this.data.detailActivityId = id;
-    this.data.attendActivityList[index].start=false;
+    this.data.attendActivityList[index].start = false;
     this.data.attendActivityList[index].end = false;
+
+    let row = 'attendActivityList[' + index + ']';
+    this.setData({ [row]: this.data.attendActivityList[index] });
+    
     wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id})
   },
   // attendActivity(activityId) {

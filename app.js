@@ -74,7 +74,8 @@ App({
       if (onReceiver[page])
         onReceiver[page](mes); 
     }
-    console.log(method);
+    //console.log(method);
+    mes.ack();
     //结束订阅
     if (method === 'closeActivity') {
     
@@ -102,7 +103,7 @@ App({
       }
       //console.log(this.globalData.subscribe);
      }
-    mes.ack();
+   
   },
  setUserinfo(userInfo){
    this.globalData.userInfo = userInfo ;

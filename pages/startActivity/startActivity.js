@@ -208,11 +208,11 @@ Page({
         isEdit: false,
         isNew: false,
       });
-      if (app.globalData.joinme === '0') {
-        app.globalData.holdActivityId = '';
-        app.globalData.isAdd = false;
-        app.globalData.joinme = '0';
-      }
+      // if (app.globalData.joinme === '0') {
+      //   app.globalData.holdActivityId = '';
+      //   app.globalData.isAdd = false;
+      //   app.globalData.joinme = '0';
+      // }
     }
   },
   subscribe(){
@@ -327,8 +327,8 @@ Page({
       data:this.data.activity
     }).then(res => {
       console.log(res);
-      if (!res.data.msg){
-        wx.showToast({ title: '系统错误',icon: 'none'});
+      if (res.data.code!==0){
+        wx.showToast({ title: res.data.msg||'系统错误',icon: 'none'});
         return;
       }
       if (this.data.isNew) {
