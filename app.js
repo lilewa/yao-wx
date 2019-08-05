@@ -93,7 +93,9 @@ App({
        this.globalData.subscribe.closeActivity[data.activityId].unsubscribe();
        delete this.globalData.subscribe.closeActivity[data.activityId];
      }
-    
+      if (this.globalData.activityNum<1){
+        app.globalData.stompClient.disconnect();
+      }
       //console.log(this.globalData.subscribe);
      }
     mes.ack();
@@ -193,7 +195,6 @@ App({
 
     this.globalData.stompClient = stompClient;
 
-   // connect();
     return new Promise((resolve, reject) => {
       wx.connectSocket({
         url: config.wsPath + '/messageServer',

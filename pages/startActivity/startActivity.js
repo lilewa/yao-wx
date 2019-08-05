@@ -246,7 +246,13 @@ Page({
   },
   //发起按钮
   bindStartTap(){
-  
+    console.log(app.globalData.socketConnected);
+    app.globalData.stompClient.disconnect(function () {
+      console.log("See you next time!");
+      console.log(app.globalData.stompClient);
+    });
+    
+    return;
      this.setData({ 
       disableStartActivity: true,
       isNew:true,
