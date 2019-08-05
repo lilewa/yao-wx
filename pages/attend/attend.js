@@ -99,8 +99,7 @@ Page({
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.attend = (mes) => {
 
-      let data = JSON.parse(mes.body);
-     // console.log('lai');
+      let data = JSON.parse(mes.body); 
       let activityId = data.listAwardPlayer[0].activityId;
       //本人发起的活动，但本人不参加，返回
       if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
@@ -108,13 +107,11 @@ Page({
           return;
         }
       }
-    //  console.log(2);
-      app.globalData.activityNum--;
       //正在详情页浏览此活动，返回
       if (this.data.detailActivityId === activityId) {
         return;
       }
-    //  console.log(3);
+     
       for (let i = 0; i < this.data.attendActivityList.length; i++) {
         if (this.data.attendActivityList[i].id === activityId) {
           this.data.attendActivityList[i].start = true;
@@ -131,11 +128,9 @@ Page({
     }
     //设置本页面收到通知的回调 结束抽奖的通知
     app.globalData.subscribe.closeActivity.onReceiver.attend = (mes) => {
-
-      let data = JSON.parse(mes.body);
-   
       
-      console.log(data);
+      let data = JSON.parse(mes.body);
+      //console.log(data);
       let activityId = data.activityId;
      
       //本人发起的活动，但本人不参加，返回
@@ -148,7 +143,7 @@ Page({
           app.globalData.joinme = '0';
         }
       }
- 
+      app.globalData.activityNum--;
 
       //正在详情页浏览此活动，返回
       if (this.data.detailActivityId === activityId) {

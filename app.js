@@ -1,5 +1,5 @@
 const config = require('utils/config')
-
+const Stomp = require('utils/stomp.js').Stomp;
 App({
   onLaunch: function () {
  
@@ -22,7 +22,7 @@ App({
         }
       }
     })
-
+    this.prepareSocket();
     //this.openSocket();
       // 展示本地存储能力
     // var logs = wx.getStorageSync('sessionId') || []
@@ -33,6 +33,7 @@ App({
    // this.globalData.stompClient.disconnect();
   },
   globalData: {
+    promise:null,
     holdActivityId:'',
     isAdd:false,
     joinme:'0',
@@ -67,14 +68,13 @@ App({
   },
   //收到websocket消息后调用每个页面订阅的方法
   dispatch(mes, onReceiver,method){
-    console.log('huidiao');
-    console.log(this.globalData.subscribe);
+   // console.log(this.globalData.subscribe);
 
     for (let page in onReceiver){
       if (onReceiver[page])
         onReceiver[page](mes); 
     }
-   
+    console.log(method);
     //结束订阅
     if (method === 'closeActivity') {
     
@@ -93,8 +93,12 @@ App({
        this.globalData.subscribe.closeActivity[data.activityId].unsubscribe();
        delete this.globalData.subscribe.closeActivity[data.activityId];
      }
+      console.log(this.globalData.activityNum);
       if (this.globalData.activityNum<1){
-        app.globalData.stompClient.disconnect();
+        this.globalData.stompClient.disconnect(function () {
+          console.log("websocket closed");
+          
+        });
       }
       //console.log(this.globalData.subscribe);
      }
@@ -120,9 +124,25 @@ App({
     //console.log(this.globalData.subscribe);
   },
   openSocket(){
-
     if (this.globalData.socketConnected)
       return Promise.resolve();
+    //防止重复调用
+    if (this.globalData.promise){
+      return this.globalData.promise;
+    }
+    return this.globalData.promise= new Promise((resolve, reject) => {
+      wx.connectSocket({
+        url: config.wsPath + '/messageServer',
+        success: () => {
+          console.log('stomp connect');
+          this.globalData.stompClient.connect({}, (callback) => { resolve(); });
+        },
+        fail: () => { reject('websocket连接失败') }
+      })
+    });
+  },
+  prepareSocket(){
+ 
     let that = this;
     // socket是否连接
    // let socketConnected = false;
@@ -131,26 +151,38 @@ App({
     // 是否断线重连
     let reconnect = true;
     let reconnectCount=3;
+
+
+    // 符合WebSocket定义的对象
+    var ws = {
+      send: sendSocketMessage,
+      close: close
+    }
     // 发送消息
     function sendSocketMessage(msg) {
       wx.sendSocketMessage({
         data: msg
       })
     }
-
     // 关闭连接
     function close() {
       console.log('diaoduan')
       if (that.globalData.socketConnected) {
         wx.closeSocket()
         that.globalData.socketConnected = false;
+        that.globalData.promise=null;
       }
     }
-    // 符合WebSocket定义的对象
-    var ws = {
-      send: sendSocketMessage,
-      close: close
-    }
+
+    Stomp.setInterval = function (interval, f) {
+      return setInterval(f, interval);
+    };
+    // 结束定时器的循环调用
+    Stomp.clearInterval = function (id) {
+      return clearInterval(id);
+    };
+
+    this.globalData.stompClient = Stomp.over(ws);
  
     wx.onSocketOpen(() => {
       console.log('WebSocket 已连接')
@@ -171,7 +203,8 @@ App({
         // 断线重连
         if (reconnect && reconnectCount>0) {
           reconnectCount--;
-          connect();
+          //connect();
+          this.globalData.openSocket();
         }
       }
     })
@@ -180,55 +213,8 @@ App({
       console.log('WebSocket 已断开');
       this.globalData.socketConnected = false;
     })
-
-    const Stomp = require('utils/stomp.js').Stomp;
-
-    Stomp.setInterval = function (interval, f) {
-      return setInterval(f, interval);
-    };
-    // 结束定时器的循环调用
-    Stomp.clearInterval = function (id) {
-      return clearInterval(id);
-    };
- 
-    const stompClient = Stomp.over(ws);
-
-    this.globalData.stompClient = stompClient;
-
-    return new Promise((resolve, reject) => {
-      wx.connectSocket({
-        url: config.wsPath + '/messageServer',
-        success: () => {
-          console.log('stomp connect');
-          stompClient.connect({}, (callback) => { resolve();});
-        },
-        fail: () => { reject('websocket连接失败')}
-      })
-    });
-    // function connect() {
-    //   // 打开信道
-
-    //   wx.connectSocket({
-    //     url: config.wsPath + '/messageServer',
-    //     success: () => {
-    //       console.log('stomp connect');
-    //       stompClient.connect({}, (callback) => {
-    //         // that.wsSubscribe();
-    //       });
-    //     }
-    //   })
-    // }
-
-
-  },
-  duan() {
-    wx.closeSocket({
-      success: () => {
-        console.log('Socket已断开');
-        //this.setData({ socketStatus: 'closed' })
-      }
-    })
-  },
+  
+  }
  
   
 })
