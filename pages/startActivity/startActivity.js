@@ -84,14 +84,13 @@ Page({
     this.setReceiver();
 
     myRequest({
-      url: config.servPath+'/master/doingActivity',
-      method: 'POST'
+      url: config.servPath+'/master/doingActivity'
     }).then(res=>{
       console.log(res);
 
       if(!res.data.msg||res.data.code!==0){
         console.log('1')
-        return Promise.reject(res.data.msg);
+        return Promise.reject(res.data.msg||'系统异常');
       }
       //没有正在进行的活动
       if (!res.data.entity){
@@ -105,12 +104,14 @@ Page({
       app.globalData.holdActivityId =res.data.entity.id;
       app.globalData.joinme = res.data.entity.joinme;
       app.globalData.isAdd=true;
+      app.globalData.activityNum++;
       this.setData({
         activity: res.data.entity,
         disableStartActivity: true,
         disableEndActivity: false,
         hasNoActivity: false
       });
+      
       this.subscribe();
     })
       .catch(res => wx.showToast({ title: res, icon: 'none'}));
@@ -146,20 +147,28 @@ Page({
     }
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.startActivity = (mes) => {
-
+      
       let data = JSON.parse(mes.body);
+     // console.log(data);
       let activityId = data.listAwardPlayer[0].activityId;
       let awardId = data.listAwardPlayer[0].awardId;
+     // console.log(awardId);
       //不是自己发起的活动，返回
       if (this.data.activity.id !== activityId) {
         return;
       }
-      for (let i = 0; i < this.data.activity.listAward.length; i++) {
-        if (this.data.activity.listAward[i].awardId === awardId) {
+      if (data.code!== 0) { 
+        //console.log(data);
+        wx.showToast({ title: data.msg, icon:'none'});
+        return;
+      }
+       for (let i = 0; i < this.data.activity.listAward.length; i++) {
+         
+        if (this.data.activity.listAward[i].id === awardId) {
           this.data.activity.listAward[i].state = '1';
           this.data.activity.listAward[i].listPlayer = data.listAwardPlayer;
           let row = 'activity.listAward[' + i + ']';
-          this.setData({ row: this.data.activity.listAward[i] });
+          this.setData({ [row]: this.data.activity.listAward[i] });
           break;
         }
       }
@@ -180,6 +189,7 @@ Page({
       if (data.activityId !== this.data.activity.id) {
         return
       }
+      app.globalData.activityNum--;
       this.setData({
         activity: {
           id: '',
@@ -219,13 +229,16 @@ Page({
     app.globalData.subscribe.joinAcvtity[this.data.activity.id] = null;
 
     //websocket已经建立，需手动调用订阅
-    console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
-    if (app.globalData.socketConnected) {
-      app.wsSubscribe();
-    } 
+    // console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+    // if (app.globalData.socketConnected) {
+    //   app.wsSubscribe();
+    // } 
+    app.openSocket().then(() => { app.wsSubscribe() });
   },
   onShow: function () {
     wx.hideTabBarRedDot({ index: 0});
+    if (app.globalData.activityNum>0)
+      app.openSocket();
   },
   getUserInfo: function(e) {
     if(e.detail.userInfo)
@@ -280,9 +293,7 @@ Page({
         'activity.joinme': this.data.tmpActivity.joinme,
         'activity.repeats': this.data.tmpActivity.repeats
       });
-    }
-  
- 
+    } 
   },
   nameInputChange(e){
     this.setData({'activity.name': e.detail.value })
@@ -321,6 +332,7 @@ Page({
         return;
       }
       if (this.data.isNew) {
+        app.globalData.activityNum++;
         //this.data.activity.id = res.data.id;
         this.setData({
           'activity.id': res.data.id,
@@ -339,17 +351,28 @@ Page({
         //活动抽奖的通知,添加需要订阅的id
         app.globalData.subscribe.startLucky[this.data.activity.id] =null;
         //订阅
-        if (app.globalData.socketConnected) {
-          app.wsSubscribe();
-        }
-        if (this.data.activity.joinme==='1'){
-          let activityPlayer = {
-            activityId: this.data.activity.id,
-            playerName: this.data.userInfo.nickName,
-            avatarUrl: this.data.userInfo.avatarUrl
-          };
-          app.globalData.stompClient.send("/app/joinAcvtity/" + this.data.activity.id, {}, JSON.stringify(activityPlayer));
-        }
+        // if (app.globalData.socketConnected) {
+        //   app.wsSubscribe();
+        // }
+        // if (this.data.activity.joinme==='1'){
+        //   let activityPlayer = {
+        //     activityId: this.data.activity.id,
+        //     playerName: this.data.userInfo.nickName,
+        //     avatarUrl: this.data.userInfo.avatarUrl
+        //   };
+        //   app.globalData.stompClient.send("/app/joinAcvtity/" + this.data.activity.id, {}, JSON.stringify(activityPlayer));
+        // }
+        app.openSocket().then(() => { app.wsSubscribe() }).then(()=>{
+          if (this.data.activity.joinme === '1') {
+            let activityPlayer = {
+              activityId: this.data.activity.id,
+              playerName: this.data.userInfo.nickName,
+              avatarUrl: this.data.userInfo.avatarUrl
+            };
+            app.globalData.stompClient
+            .send("/app/joinAcvtity/" + this.data.activity.id, {}, JSON.stringify(activityPlayer));
+          }
+        });
       }else{
         this.setData({
           isEdit: false
@@ -457,8 +480,16 @@ Page({
     this.setData({ [prop]: !this.data.activity.listAward[index].open})
   },
   startLucky(e){
-    let id = e.currentTarget.dataset['id'];
-    console.log(id);
+    let index = e.currentTarget.dataset['index'];
+    console.log(index);
+    if (!app.globalData.socketConnected) { 
+      // 显示Toast
+      wx.showToast({  title: '未连接网络',  icon: 'none' });
+      return;
+    }
+    let award = this.data.activity.listAward[index];
+    //console.log(app.globalData.subscribe);
+    app.globalData.stompClient.send("/app/startLucky/" + this.data.activity.id, {}, JSON.stringify(award));
   },
   updateAward(e) {
     let index = e.currentTarget.dataset['index'];

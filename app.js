@@ -23,7 +23,7 @@ App({
       }
     })
 
-    this.openSocket();
+    //this.openSocket();
       // 展示本地存储能力
     // var logs = wx.getStorageSync('sessionId') || []
     //logs.unshift(Date.now())
@@ -39,7 +39,7 @@ App({
     userInfo: null,
     stompClient:null,
     socketConnected:false,
-    sessionId:'123',
+    activityNum:0,
     subscribeUserInfo:[],
     subscribe:{
       startLucky:{
@@ -67,20 +67,33 @@ App({
   },
   //收到websocket消息后调用每个页面订阅的方法
   dispatch(mes, onReceiver,method){
+    console.log('huidiao');
+    console.log(this.globalData.subscribe);
+
     for (let page in onReceiver){
       if (onReceiver[page])
         onReceiver[page](mes); 
     }
+   
     //结束订阅
     if (method === 'closeActivity') {
-     // console.log('closeActivity');
+    
       let data = JSON.parse(mes.body);  
-      this.globalData.subscribe.startLucky[data.activityId].unsubscribe();
-      delete this.globalData.subscribe.startLucky[data.activityId];
-      this.globalData.subscribe.joinAcvtity[data.activityId].unsubscribe();
-      delete this.globalData.subscribe.joinAcvtity[data.activityId];
-      this.globalData.subscribe.closeActivity[data.activityId].unsubscribe();
-      delete this.globalData.subscribe.closeActivity[data.activityId];
+      //console.log('结束');
+      //console.log(this.globalData.subscribe);
+      if (this.globalData.subscribe.startLucky[data.activityId]){
+        this.globalData.subscribe.startLucky[data.activityId].unsubscribe();
+        delete this.globalData.subscribe.startLucky[data.activityId];
+      }
+      if (this.globalData.subscribe.joinAcvtity[data.activityId]){
+        this.globalData.subscribe.joinAcvtity[data.activityId].unsubscribe();
+        delete this.globalData.subscribe.joinAcvtity[data.activityId];
+      }
+      if (this.globalData.subscribe.closeActivity[data.activityId]){
+       this.globalData.subscribe.closeActivity[data.activityId].unsubscribe();
+       delete this.globalData.subscribe.closeActivity[data.activityId];
+     }
+    
       //console.log(this.globalData.subscribe);
      }
     mes.ack();
@@ -102,10 +115,12 @@ App({
         }
        
       }
-    console.log(this.globalData.subscribe);
+    //console.log(this.globalData.subscribe);
   },
   openSocket(){
 
+    if (this.globalData.socketConnected)
+      return Promise.resolve();
     let that = this;
     // socket是否连接
    // let socketConnected = false;
@@ -134,21 +149,7 @@ App({
       send: sendSocketMessage,
       close: close
     }
-
-    function connect() {
-      // 打开信道
-      wx.connectSocket({
-        url: config.wsPath +'/messageServer',
-        success: () => {
-          console.log('stomp connect');
-          stompClient.connect({}, (callback)=> {
-            that.wsSubscribe();
-           });
-        }
-      })
-    }
-
-
+ 
     wx.onSocketOpen(() => {
       console.log('WebSocket 已连接')
       this.globalData.socketConnected = true;
@@ -192,7 +193,31 @@ App({
 
     this.globalData.stompClient = stompClient;
 
-    connect();
+   // connect();
+    return new Promise((resolve, reject) => {
+      wx.connectSocket({
+        url: config.wsPath + '/messageServer',
+        success: () => {
+          console.log('stomp connect');
+          stompClient.connect({}, (callback) => { resolve();});
+        },
+        fail: () => { reject('websocket连接失败')}
+      })
+    });
+    // function connect() {
+    //   // 打开信道
+
+    //   wx.connectSocket({
+    //     url: config.wsPath + '/messageServer',
+    //     success: () => {
+    //       console.log('stomp connect');
+    //       stompClient.connect({}, (callback) => {
+    //         // that.wsSubscribe();
+    //       });
+    //     }
+    //   })
+    // }
+
 
   },
   duan() {

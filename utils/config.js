@@ -1,7 +1,6 @@
 module.exports={
   // servPath:'https://www.qiuqiuni.cn/yao',
   // wsPath: 'wss://www.qiuqiuni.cn/yao',
-  servPath: 'http://localhost:8090/yao',
-  wsPath: 'ws://localhost:8090/yao',
-  // imgPath:'https://www.qiuqiuni.cn/img/',
+  servPath: 'http://192.168.0.117:8090/yao',
+  wsPath: 'ws://192.168.0.117:8090/yao'
 }

@@ -31,7 +31,7 @@
   background:green;
 }
 .table > .tr.bg-g.start{
-  background: green;
+  background: rgb(204, 255, 153);
 }
 .table > .tr.bg-g.end{
   background: red;

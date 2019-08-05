@@ -87,7 +87,7 @@
 
           <view class="weui-cells weui-cells_after-title activity-awardlist {{item.open ? 'activity-item-bd-show' : ''}}">
             <view class="weui-cell splitbtn" wx:if="{{item.state==='0'}}">
-              <button bindtap="startLucky" data-id="{{item.id}}" type="primary"  size="mini">开始</button>
+              <button bindtap="startLucky"  data-index="{{index}}" type="primary"  size="mini">开始</button>
               <view class="rightbtn">
                 <button bindtap="updateAward" data-index="{{index}}"  size="mini">修改</button>
                 <button bindtap="deleteAward" data-index="{{index}}" type="warn" size="mini" >删除</button>
@@ -103,7 +103,7 @@
 
   <view class="activityPlayerBox" wx:if="{{!hasNoActivity}}">
     <view class="imagebox" wx:for="{{activity.listActivityPlayer}}">
-      <image style='width:64rpx;height:64rpx' src="https://icon.zol-img.com.cn/ask/header/033.png" mode="cover"></image>
+      <image style='width:64rpx;height:64rpx' src="{{item.avatarUrl}}" mode="cover"></image>
     </view>
    </view>
       

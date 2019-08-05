@@ -14,7 +14,7 @@
 		"checkInvalidKey": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.7.0",
+	"libVersion": "2.8.0",
 	"appid": "wxa5c63165c6e7c074",
 	"projectname": "yao-wx",
 	"debugOptions": {
@@ -47,7 +47,7 @@
 					"id": 0,
 					"name": "扫码进入",
 					"pathName": "pages/attend/attend",
-					"query": "scene=92baa825-d1ac-4f2b-81cf-4ad79175a8d4",
+					"query": "scene=44a71082-b1b0-459b-a889-2ad88d0be44f",
 					"scene": 1047
 				}
 			]
