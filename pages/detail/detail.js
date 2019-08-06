@@ -40,7 +40,7 @@ Page({
     //需要订阅通知
     if (options.action==='subs'){
       this.data.subs=true;
-      this.subscribe();
+      this.setReceiver();
     }
   },
 
@@ -112,7 +112,7 @@ Page({
     this.setData({ [prop]: !this.data.activity.listAward[index].open })
   },
 
-  subscribe() {
+  setReceiver() {
 
     //设置本页面收到通知的回调 抽奖结果的通知
     app.globalData.subscribe.startLucky.onReceiver.detailActivity = (mes) => {

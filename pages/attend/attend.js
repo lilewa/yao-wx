@@ -154,6 +154,7 @@ Page({
       for (let i = 0; i < this.data.attendActivityList.length; i++) {
         if (this.data.attendActivityList[i].id === activityId) {
           this.data.attendActivityList[i].end = true;
+          this.data.attendActivityList[i].state='2';
           let row = 'attendActivityList[' + i + ']';
           this.setData({ [row]: this.data.attendActivityList[i] });
           break;
@@ -205,34 +206,21 @@ Page({
     // 传递的参数
     let id = e.currentTarget.dataset['id'];
     let index = e.currentTarget.dataset['index'];
-   
     this.data.detailActivityId = id;
+    let state = this.data.attendActivityList[index].state;
     this.data.attendActivityList[index].start = false;
     this.data.attendActivityList[index].end = false;
 
     let row = 'attendActivityList[' + index + ']';
     this.setData({ [row]: this.data.attendActivityList[index] });
+    if(state==='0'){
+      wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id })
+    }else{
+      wx.navigateTo({ url: '../detail/detail?id=' + id })
+    }
     
-    wx.navigateTo({ url: '../detail/detail?action=subs&id=' + id})
   },
-  // attendActivity(activityId) {
-  //   console.log('asd');
-  //   //先订阅，后发消息参加
-  //   if (!app.globalData.subscribe.joinAcvtity[activityId]){
-  //     console.log('mei')
-  //     app.globalData.subscribe.joinAcvtity[activityId] =
-  //       app.globalData.stompClient.subscribe('/sub/joinAcvtity/' + activityId,
-  //       (mes) => { app.dispatch(mes, app.globalData.subscribe.joinAcvtity.onReceiver) }
-  //       );
-  //   }
-   
-  //   let activityPlayer = {
-  //     activityId: activityId,
-  //     playerName: this.data.userInfo.nickName,
-  //     avatarUrl: this.data.userInfo.avatarUrl
-  //   };
-  //   app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
-  // },
+
   attendActivity(activityId){
     console.log('attendActivity');
     for (let i = 0; i < this.data.attendActivityList.length; i++) {
@@ -261,16 +249,7 @@ Page({
 
       app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
     });
-    // if (app.globalData.socketConnected) {
-    //   app.wsSubscribe();
-    // }
-    // let activityPlayer = {
-    //   activityId: activityId,
-    //   playerName: this.data.userInfo.nickName,
-    //   avatarUrl: this.data.userInfo.avatarUrl
-    // };
-    
-    // app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
+   
   },
   scanCode(){
     const that = this
