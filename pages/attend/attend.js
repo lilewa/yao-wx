@@ -25,10 +25,13 @@ Page({
     //     return util.formatTime(new Date(log))
     //   })
     // })
+    let scene;
+    if (query.scene){
+      scene = decodeURIComponent(query.scene)
+    }
     
-    //const scene= decodeURIComponent(query.scene);
-    const scene = query.scene;
-    //console.log(scene);
+    console.log('query:' + scene);
+      
     if (app.globalData.userInfo) {
       this.setData({
         userInfo: app.globalData.userInfo,
@@ -57,7 +60,7 @@ Page({
         return this.subscribe();
       }).then(()=>{ 
         if (scene){
-          console.log('jinlai');
+          //console.log('jinlai');
           if (app.globalData.userInfo){
             this.attendActivity(scene);
           }else{
@@ -229,7 +232,7 @@ Page({
         return;
       }
     }
-    
+    console.log(1);
     if (!app.globalData.subscribe.joinAcvtity[activityId]) {
       //参加活动的通知,添加需要订阅的id
       app.globalData.subscribe.joinAcvtity[activityId] = null;
@@ -238,6 +241,7 @@ Page({
       //活动抽奖的通知,添加需要订阅的id
       app.globalData.subscribe.startLucky[activityId] = null;
     } 
+    console.log(2);
 
     //订阅
     app.openSocket().then(() => { app.wsSubscribe() }).then(()=>{
@@ -246,6 +250,7 @@ Page({
         playerName: this.data.userInfo.nickName,
         avatarUrl: this.data.userInfo.avatarUrl
       };
+      console.log('socketConnected:' + app.globalData.socketConnected);
 
       app.globalData.stompClient.send("/app/joinAcvtity/" + activityId, {}, JSON.stringify(activityPlayer));
     });

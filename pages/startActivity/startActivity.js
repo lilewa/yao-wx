@@ -55,9 +55,10 @@ Page({
    
   },
   onShareAppMessage() {
+    console.log('/pages/attend/attend?scene='+this.data.activity.id);
     return {
       title: '发奖了，手慢无',
-      path: '/pages/attend/attend?scene ='+this.data.activity.id,
+      path: '/pages/attend/attend?scene='+this.data.activity.id,
       imageUrl: '/image/share.jpg',
     }
   },
@@ -89,7 +90,7 @@ Page({
       console.log(res);
 
       if(!res.data.msg||res.data.code!==0){
-        console.log('1')
+        //console.log('1')
         return Promise.reject(res.data.msg||'系统异常');
       }
       //没有正在进行的活动

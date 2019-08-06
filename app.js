@@ -125,6 +125,7 @@ App({
     //console.log(this.globalData.subscribe);
   },
   openSocket(){
+    console.log('socketConnected:'+this.globalData.socketConnected);
     if (this.globalData.socketConnected)
       return Promise.resolve();
     //防止重复调用

@@ -11,7 +11,14 @@
 		"newFeature": true,
 		"nodeModules": false,
 		"autoAudits": false,
-		"checkInvalidKey": true
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
 	},
 	"compileType": "miniprogram",
 	"libVersion": "2.8.0",
@@ -47,7 +54,7 @@
 					"id": 0,
 					"name": "扫码进入",
 					"pathName": "pages/attend/attend",
-					"query": "scene=4b9fc946-59b8-4a5c-89cd-6d6890f3e150",
+					"query": "scene=25a7a062-036a-49bf-8f45-36c0bb34617b",
 					"scene": 1047
 				}
 			]
