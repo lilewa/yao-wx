@@ -94,7 +94,7 @@ Page({
   onShareAppMessage: function () {
     return {
       title: '来玩啦！靓仔',
-      path: '/pages/attend/attend?scene='+this.data.activity.id,
+      path: '/pages/attend/attend?scene=' + app.globalData.holdActivityId,
       imageUrl: '/image/share.jpg',
     }
   },

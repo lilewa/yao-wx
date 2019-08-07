@@ -58,7 +58,7 @@ Page({
     console.log('/pages/attend/attend?scene='+this.data.activity.id);
     return {
       title: '发奖了，手慢无',
-      path: '/pages/attend/attend?scene='+this.data.activity.id,
+      path: '/pages/attend/attend?scene=' + app.globalData.holdActivityId,
       imageUrl: '/image/share.jpg',
     }
   },
@@ -187,7 +187,7 @@ Page({
         return;
       }
       //判断是不是本人发起的活动，不是的话忽略
-      if (data.activityId !== this.data.activity.id) {
+      if (data.activity.id !== this.data.activity.id) {
         return
       }
       app.globalData.activityNum--;
@@ -200,7 +200,8 @@ Page({
           joinme: '0',
           repeats: '0',
           masterName: '',
-          listAward: []
+          listAward: [],
+          listActivityPlayer: []
         },
         disableEndActivity: true,
         disableStartActivity:false,
@@ -263,7 +264,8 @@ Page({
     .then(confirm=>{
       if (!confirm)
         return;
-      app.globalData.stompClient.send('/app/closeActivity/'+this.data.activity.id);
+      app.openSocket().then(() => { app.globalData.stompClient.send('/app/closeActivity/' + this.data.activity.id); });
+      
     });
   
   },
@@ -482,15 +484,18 @@ Page({
   },
   startLucky(e){
     let index = e.currentTarget.dataset['index'];
-    console.log(index);
-    if (!app.globalData.socketConnected) { 
-      // 显示Toast
-      wx.showToast({  title: '未连接网络',  icon: 'none' });
-      return;
-    }
+    // console.log(index);
+    // if (!app.globalData.socketConnected) { 
+    //   // 显示Toast
+    //   wx.showToast({  title: '未连接网络',  icon: 'none' });
+    //   return;
+    // }
     let award = this.data.activity.listAward[index];
     //console.log(app.globalData.subscribe);
-    app.globalData.stompClient.send("/app/startLucky/" + this.data.activity.id, {}, JSON.stringify(award));
+    app.openSocket().then(() => {
+      app.globalData.stompClient.send("/app/startLucky/" + this.data.activity.id, {}, JSON.stringify(award));
+     });
+    
   },
   updateAward(e) {
     let index = e.currentTarget.dataset['index'];

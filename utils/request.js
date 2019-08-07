@@ -6,9 +6,11 @@ module.exports = function (obj){
     obj.success = function (res) {
 
       if (res.header["Set-Cookie"]){
+        //console.log(res.header["Set-Cookie"]);
         let cookie = res.header["Set-Cookie"].split(';');
-        wx.setStorageSync('sessionId', cookie[0]);
+        wx.setStorage({ key:'sessionId', data: cookie[0]});
         app.globalData.sessionId = cookie[0];
+        //console.log(app.globalData.sessionId);
       }
       resolve(res);
     };

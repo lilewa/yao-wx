@@ -15,7 +15,7 @@ Page({
   onShareAppMessage() {
     return {
       title: '系兄弟就来砍我玩',
-      path: '/pages/attend/attend',
+      path: '/pages/attend/attend?scene=' + app.globalData.holdActivityId,
       imageUrl:'/image/share.jpg',
     }
   },
@@ -60,7 +60,9 @@ Page({
         return this.subscribe();
       }).then(()=>{ 
         if (scene){
-          //console.log('jinlai');
+          if(app.globalData.holdActivityId==scene){
+            return;
+          }
           if (app.globalData.userInfo){
             this.attendActivity(scene);
           }else{
@@ -134,18 +136,14 @@ Page({
       
       let data = JSON.parse(mes.body);
       //console.log(data);
-      let activityId = data.activityId;
+      let activityId = data.activity.id;
      
       //本人发起的活动，但本人不参加，返回
       if (app.globalData.holdActivityId && app.globalData.holdActivityId === activityId) {
         if (app.globalData.joinme === '0') {
           return;
         } 
-        // else {
-        //   app.globalData.holdActivityId = '';
-        //   app.globalData.isAdd = false;
-        //   app.globalData.joinme = '0';
-        // }
+       
       }
       app.globalData.activityNum--;
 
@@ -153,11 +151,12 @@ Page({
       if (this.data.detailActivityId === activityId) {
         return;
       }
-      console.log('hao');
+      //console.log('hao');
       for (let i = 0; i < this.data.attendActivityList.length; i++) {
         if (this.data.attendActivityList[i].id === activityId) {
           this.data.attendActivityList[i].end = true;
           this.data.attendActivityList[i].state='2';
+          this.data.attendActivityList[i].endtime = data.activity.endtime;
           let row = 'attendActivityList[' + i + ']';
           this.setData({ [row]: this.data.attendActivityList[i] });
           break;
@@ -232,7 +231,7 @@ Page({
         return;
       }
     }
-    console.log(1);
+    //console.log(1);
     if (!app.globalData.subscribe.joinAcvtity[activityId]) {
       //参加活动的通知,添加需要订阅的id
       app.globalData.subscribe.joinAcvtity[activityId] = null;

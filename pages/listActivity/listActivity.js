@@ -10,7 +10,7 @@ Page({
   onShareAppMessage() {
     return {
       title: '发奖了，手慢无',
-      path: '/pages/attend/attend?scene=HAHA',
+      path: '/pages/attend/attend?scene=' + app.globalData.holdActivityId,
       imageUrl: '/image/share.jpg',
     }
   },

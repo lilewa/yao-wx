@@ -3,7 +3,7 @@ const Stomp = require('utils/stomp.js').Stomp;
 App({
   onLaunch: function () {
  
-    //this.globalData.sessionId = wx.getStorageSync('sessionId') ;
+    this.globalData.sessionId = wx.getStorageSync('sessionId') ;
      
     // 获取用户信息
     wx.getSetting({
@@ -34,6 +34,7 @@ App({
   },
   globalData: {
     promise:null,
+    sessionId:'',
     holdActivityId:'',
     isAdd:false,
     joinme:'0',
@@ -69,13 +70,13 @@ App({
   //收到websocket消息后调用每个页面订阅的方法
   dispatch(mes, onReceiver,method){
    // console.log(this.globalData.subscribe);
-
+    mes.ack();
     for (let page in onReceiver){
       if (onReceiver[page])
         onReceiver[page](mes); 
     }
     //console.log(method);
-    mes.ack();
+  
     //结束订阅
     if (method === 'closeActivity') {
     
@@ -101,7 +102,15 @@ App({
           
         });
       }
-      //console.log(this.globalData.subscribe);
+      if (data.activityId === this.globalData.holdActivityId){
+        console.log('app:' + data.activityId);
+        
+        this.globalData.holdActivityId = '';
+        this.globalData.isAdd = false;
+        this.globalData.joinme = '0';
+        
+      }
+      
      }
    
   },
@@ -135,6 +144,7 @@ App({
     return this.globalData.promise= new Promise((resolve, reject) => {
       wx.connectSocket({
         url: config.wsPath + '/messageServer',
+        header: {'Cookie': this.globalData.sessionId},
         success: () => {
           console.log('stomp connect');
           this.globalData.stompClient.connect({}, (callback) => { resolve(); });
