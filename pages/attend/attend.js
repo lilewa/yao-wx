@@ -258,10 +258,10 @@ Page({
   scanCode(){
     const that = this
     wx.scanCode({
-      success(res) {
+      success:(res)=> {
         console.log(res.result);
-        let scanId='';
-        this.attendActivity(scanId);
+        //let scanId='';
+        //this.attendActivity(scanId);
       },
       fail() { }
     });
