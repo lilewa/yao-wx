@@ -42,24 +42,29 @@ Page({
   // },
   view2DCodeTap(){
 
-    // myRequest({
-    //   url: config.servPath + '/master/wxacode?id='+this.data.activity.id
-    // }).then(res => {
-    //   //console.log(res);
-    //   if (res.data.msg ==='success'){
-    //     wx.previewImage({   current: '', // 当前显示图片的http链接
-    //       urls: [res.data.imgPath] // 需要预览的图片http链接列表
-    //     })
-    //   }
-    //   });
+    myRequest({
+      url: config.servPath + '/master/wxacode?id='+this.data.activity.id
+    }).then(res => {
+      //console.log(res);
+      if (res.data.msg ==='success'){
+        wx.previewImage({ current: '', // 当前显示图片的http链接
+          urls: [res.data.imgPath] // 需要预览的图片http链接列表
+        })
+      }
+      });
    
   },
   onShareAppMessage() {
-    console.log('/pages/attend/attend?scene='+this.data.activity.id);
+    //console.log('/pages/attend/attend?scene='+this.data.activity.id);
     return {
       title: '发奖了，手慢无',
       path: '/pages/attend/attend?scene=' + app.globalData.holdActivityId,
       imageUrl: '/image/share.jpg',
+    }
+  },
+  onUnload: function () {
+    if (this.data.activity.id) {
+      app.globalData.activityNum--;
     }
   },
   onLoad: function () {
@@ -87,7 +92,7 @@ Page({
     myRequest({
       url: config.servPath+'/master/doingActivity'
     }).then(res=>{
-      console.log(res);
+      //console.log(res);
 
       if(!res.data.msg||res.data.code!==0){
         //console.log('1')
@@ -112,7 +117,8 @@ Page({
         disableEndActivity: false,
         hasNoActivity: false
       });
-      
+      //console.log('start onload:' + app.globalData.activityNum);
+
       this.subscribe();
     })
       .catch(res => wx.showToast({ title: res, icon: 'none'}));
@@ -181,8 +187,8 @@ Page({
     }
     //设置本页面收到通知的回调 结束抽奖的通知
     app.globalData.subscribe.closeActivity.onReceiver.startActivity = (mes) => {
-      let data = JSON.parse(mes.body); console.log('收到结束');
-      console.log(mes.body);
+      let data = JSON.parse(mes.body);// console.log('收到结束');
+      //console.log(mes.body);
       if (data.code !== 0) {
         return;
       }
@@ -241,6 +247,8 @@ Page({
     wx.hideTabBarRedDot({ index: 0});
     if (app.globalData.activityNum>0)
       app.openSocket();
+
+    //console.log(app.globalData.activityNum);
   },
   getUserInfo: function(e) {
     if(e.detail.userInfo)
@@ -303,7 +311,7 @@ Page({
   },
   checkJoinme(e){
     this.setData({ 'activity.joinme': e.detail.value?'1':'0'});
-    console.log(this.data.activity.joinme);
+    //console.log(this.data.activity.joinme);
   },
   checkRepeats(e) {
     this.setData({ 'activity.repeats': e.detail.value ? '1' : '0' });
@@ -329,7 +337,7 @@ Page({
       method: 'POST',
       data:this.data.activity
     }).then(res => {
-      console.log(res);
+      //console.log(res);
       if (res.data.code!==0){
         wx.showToast({ title: res.data.msg||'系统错误',icon: 'none'});
         return;

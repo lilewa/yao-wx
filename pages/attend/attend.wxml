@@ -9,11 +9,11 @@
     </view>
   </view>
 
-  <view class="scanImg">
+  <!-- <view class="scanImg">
      <image style='width:40px;height:40px' src="../../resource/scan.png" mode="cover"
       bindtap='scanCode'></image>
   </view>
-  <view class="end-btn"></view>
+  <view class="end-btn"></view> -->
 
 </view>
 <view class="table">

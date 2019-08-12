@@ -139,7 +139,19 @@ App({
       return Promise.resolve();
     //防止重复调用
     if (this.globalData.promise){
-      return this.globalData.promise;
+      return this.globalData.promise.catch(()=>{
+        return new Promise((resolve, reject) => {
+          wx.connectSocket({
+            url: config.wsPath + '/messageServer',
+            header: { 'Cookie': this.globalData.sessionId },
+            success: () => {
+              console.log('stomp connect');
+              this.globalData.stompClient.connect({}, (callback) => { resolve(); });
+            },
+            fail: () => { reject('websocket连接失败') }
+          })
+        });
+      });
     }
     return this.globalData.promise= new Promise((resolve, reject) => {
       wx.connectSocket({
@@ -161,8 +173,8 @@ App({
     // 待发送的消息队列
     //let messageQueue = [];
     // 是否断线重连
-    let reconnect = true;
-    let reconnectCount=3;
+    let reconnect = false;
+    //let reconnectCount=3;
 
 
     // 符合WebSocket定义的对象
@@ -179,7 +191,7 @@ App({
     // 关闭连接
     function close() {
       console.log('diaoduan')
-      if (that.globalData.socketConnected) {
+     if (that.globalData.socketConnected) {
         wx.closeSocket()
         that.globalData.socketConnected = false;
         that.globalData.promise=null;
@@ -211,19 +223,20 @@ App({
 
     wx.onSocketError(error => {
       console.error('socket error:', error)
-      if (!this.globalData.socketConnected) {
-        // 断线重连
-        if (reconnect && reconnectCount>0) {
-          reconnectCount--;
-          //connect();
-          this.globalData.openSocket();
-        }
-      }
+      // if (!this.globalData.socketConnected) {
+      //   // 断线重连
+      //   if (reconnect && reconnectCount>0) {
+      //     reconnectCount--;
+      //     //connect();
+      //     this.globalData.openSocket();
+      //   }
+      // }
     })
 
     wx.onSocketClose(() => {
       console.log('WebSocket 已断开');
       this.globalData.socketConnected = false;
+      that.globalData.promise = null;
     })
   
   }

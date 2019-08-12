@@ -30,7 +30,7 @@ Page({
       scene = decodeURIComponent(query.scene)
     }
     
-    console.log('query:' + scene);
+    //console.log('query:' + scene);
       
     if (app.globalData.userInfo) {
       this.setData({
@@ -55,7 +55,7 @@ Page({
         if (!res.data.msg || res.data.code !== 0) {
           return Promise.reject(res.data.msg||'服务异常');
         }
-        this.attendActivityList=res.data.list;
+        this.data.attendActivityList=res.data.list;
         this.setData({attendActivityList: res.data.list});
         return this.subscribe();
       }).then(()=>{ 
@@ -72,6 +72,12 @@ Page({
            }
         } 
       }).catch(res => wx.showToast({ title: res.errMsg, icon: 'none' }));
+  },
+  onUnload: function () {
+    for (let i = 0; i < this.data.attendActivityList.length; i++) {
+      if (this.data.attendActivityList[i].state !== '2')
+        app.globalData.activityNum--; 
+    }
   },
   setReceiver(){
     //设置本页面收到通知的回调 参加活动的通知
@@ -170,20 +176,20 @@ Page({
     }
   },
   subscribe(){
-    
-    for (let i = 0; i < this.attendActivityList.length; i++) {
-      if (this.attendActivityList[i].status !== '2') {
+    //console.log(this.data.attendActivityList);
+    for (let i = 0; i < this.data.attendActivityList.length; i++) {
+      if (this.data.attendActivityList[i].state !== '2') {
         app.globalData.activityNum++;
-        if (!app.globalData.subscribe.startLucky[this.attendActivityList[i].id]) {
-          app.globalData.subscribe.startLucky[this.attendActivityList[i].id] = null;
+        if (!app.globalData.subscribe.startLucky[this.data.attendActivityList[i].id]) {
+          app.globalData.subscribe.startLucky[this.data.attendActivityList[i].id] = null;
         }
-        if (!app.globalData.subscribe.closeActivity[this.attendActivityList[i].id]) {
-          app.globalData.subscribe.closeActivity[this.attendActivityList[i].id] = null;
+        if (!app.globalData.subscribe.closeActivity[this.data.attendActivityList[i].id]) {
+          app.globalData.subscribe.closeActivity[this.data.attendActivityList[i].id] = null;
         }
       }
     }
     //websocket已经建立，需手动调用订阅
-   // console.log('app.globalData.socketConnected:' + app.globalData.socketConnected)
+   // console.log('attend onload:' + app.globalData.activityNum);
     //if (app.globalData.socketConnected) {
     if(app.globalData.activityNum > 0){
       return app.openSocket().then(() => { app.wsSubscribe() });
@@ -200,9 +206,11 @@ Page({
   onShow: function () {
     wx.hideTabBarRedDot({ index: 1});
     this.data.detailActivityId='';
-    console.log('app.globalData.activityNum:' + app.globalData.activityNum)
+    //console.log('app.globalData.activityNum:' + app.globalData.activityNum)
     if (app.globalData.activityNum > 0)
       app.openSocket();
+    
+    console.log(app.globalData.activityNum);
   },
   tapRow: function (e) {
     // 传递的参数
@@ -224,7 +232,7 @@ Page({
   },
 
   attendActivity(activityId){
-    console.log('attendActivity');
+   // console.log('attendActivity');
     for (let i = 0; i < this.data.attendActivityList.length; i++) {
       if (this.data.attendActivityList[i].id == activityId) {
         wx.showToast({ title: '已经参加过这次活动', icon: 'none' });
@@ -240,7 +248,7 @@ Page({
       //活动抽奖的通知,添加需要订阅的id
       app.globalData.subscribe.startLucky[activityId] = null;
     } 
-    console.log(2);
+    //console.log(2);
 
     //订阅
     app.openSocket().then(() => { app.wsSubscribe() }).then(()=>{
